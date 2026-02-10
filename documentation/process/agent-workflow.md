@@ -1,0 +1,261 @@
+# Agent Workflow Design
+
+## Philosophy
+
+This project uses a **human-in-the-loop** multi-agent workflow. Agents analyse, synthesise, and present options. The developer makes all final decisions. This is intentional — not a limitation.
+
+**Why not full autonomy?**
+- Complex architectural decisions involve domain knowledge that agents can't fully have
+- The project will pause and resume many times; clear agent roles ensure context can be re-established
+- Confident wrong assumptions compound quickly in a pipeline system — human checkpoints prevent this
+- This is a learning project; deep understanding requires the developer to be in the decision loop
+
+---
+
+## Why These Agents Exist
+
+The project grew from informal design conversations scattered across multiple chat sessions. The agent structure exists to:
+- Give each type of work a consistent, documented role
+- Ensure no component is designed in isolation from the others (Integration Lead enforces this)
+- Enable the developer to engage at different levels (strategic with Head of Development, task-level with Project Manager)
+- Prevent security and quality concerns from being bolted on later (Code Reviewer embeds them from the start)
+
+---
+
+## Agent Roster
+
+### 1. Product Owner Agent
+
+**File**: `.claude/agents/product-owner.md`
+
+**Responsibility**: Convert raw requirements and use cases into formal user stories with acceptance criteria.
+
+**Inputs**: Project goals, use cases, feature descriptions, phase requirements
+
+**Output format**: Structured user stories — *As a [role], I want [action] so that [benefit]* — with:
+- Acceptance criteria (testable, unambiguous)
+- Definition of done
+- Priority and phase assignment
+
+**Scope constraints**: Does NOT make architectural decisions. If a requirement has architectural implications, flags it for the Head of Development agent.
+
+**Key context files**: [project/overview.md](../project/overview.md) (use cases and project goals)
+
+**Output location**: `.claude/docs/requirements/`
+
+---
+
+### 2. Head of Development Agent
+
+**File**: `.claude/agents/head-of-development.md`
+
+**Responsibility**: Evolve system architecture based on requirements; make cross-cutting architectural decisions; ensure the Infrastructure as Configuration principle is upheld in all decisions.
+
+**Inputs**: Requirements from Product Owner, component proposals from Senior Developers, questions about cross-cutting concerns
+
+**Output format**:
+- Architecture decisions (recorded in [decisions/architecture-decisions.md](../decisions/architecture-decisions.md))
+- Updated architecture documentation
+- Validation or rejection of component specification choices
+
+**Scope constraints**: Cross-cutting decisions ONLY. Does not write implementation plans. Acts as a discussion partner, not an autonomous decision-maker — presents options with tradeoffs for developer to choose.
+
+**Hard rule**: Every decision must honour the Infrastructure as Configuration principle (see [process/development-principles.md](development-principles.md)).
+
+**Key context files**: [project/architecture.md](../project/architecture.md), [process/development-principles.md](development-principles.md), [decisions/architecture-decisions.md](../decisions/architecture-decisions.md)
+
+---
+
+### 3. Integration Lead Agent (Critical)
+
+**File**: `.claude/agents/integration-lead.md`
+
+**Responsibility**: Own the PostgreSQL backend as the single source of truth. Manages schema evolution, API contracts, and data access patterns. Prevents multiple components from independently querying the database in ways that break on schema changes.
+
+**Why this agent is critical**: Without it, each component team independently decides how to access the database. Over time this creates brittle, tightly coupled systems that break when the schema changes. The Integration Lead is the gatekeeper that prevents this.
+
+**Specific tasks**:
+- Manage schema evolution and migrations
+- Define API interfaces that all components depend on
+- Validate component data access patterns (no ad-hoc queries allowed)
+- Approve new schema/API needs from Senior Developers before they're implemented
+- Manage backward compatibility across schema changes
+- Prevent ad-hoc queries from multiple components
+
+**Inputs**: Data access requirement proposals from Senior Developers
+
+**Output format**:
+- Approved schema changes with migration files
+- API contracts (TypeScript interfaces)
+- Rejection feedback with recommended alternatives
+
+**Hard rules**:
+- No component gets database access without Integration Lead approval
+- No direct SQL queries outside defined data access patterns
+- Schema changes require migration files; no direct `ALTER TABLE` in ad-hoc SQL
+
+**Key context files**: [project/architecture.md](../project/architecture.md), all component specifications, [decisions/unresolved-questions.md](../decisions/unresolved-questions.md) (UQ-001, UQ-003, UQ-005)
+
+---
+
+### 4. Senior Developer Agent (Template — One Per Component)
+
+**File template**: `.claude/agents/senior-developer-template.md`
+
+**Responsibility**: Decompose a component specification into a detailed implementation plan. One instance per component, each scoped to its component's specification.
+
+**Inputs**: Component specification, current architecture, Integration Lead contracts, relevant skills from `.claude/skills/`
+
+**Output format**: Implementation plan containing:
+- Ordered task list with dependencies
+- Data access requirements (for Integration Lead approval before implementation proceeds)
+- New schema/API needs
+- Technology choices within the component's scope
+- Estimated complexity per task
+
+**Escalation rule**: If a component has 5+ distinct subsystems or represents more than 3–4 months of work, escalate to a Team Lead structure (break into sub-components, each with their own Senior Developer).
+
+**Workflow**: Propose data access needs → Integration Lead validates → proceed with implementation plan.
+
+**Component-specific instances**:
+- `.claude/agents/senior-developer-component-1.md` — scoped to [component-1-document-intake/specification.md](../components/component-1-document-intake/specification.md)
+- `.claude/agents/senior-developer-component-2.md` — scoped to all [component-2-processing-and-embedding/](../components/component-2-processing-and-embedding/) documents
+
+---
+
+### 5. Implementer Agent (Selective Use Only)
+
+**File**: `.claude/agents/implementer.md`
+
+**Responsibility**: Write production-ready code from Senior Developer plans.
+
+**When to use**: Component 1 (Document Intake web UI) only. The developer has extensive web development experience — there is no learning value in implementing it personally.
+
+**When NOT to use**: Components 2–4 (processing pipeline, query, continuous ingestion). These are the learning components — OCR, embeddings, RAG, document processing pipelines. The developer implements these personally to build genuine understanding.
+
+**Inputs**: Detailed Senior Developer implementation plan
+
+**Output format**: Working TypeScript/Node.js code with Vitest tests, following the monorepo patterns from the Component 1 specification.
+
+**Scope constraints**:
+- Implements exactly what the plan specifies
+- Does NOT make architectural decisions
+- Does NOT choose different libraries than specified
+- Does NOT skip tests
+
+**Code standards**: TypeScript strict mode, Pino logging, Zod validation, nconf configuration, pnpm workspace patterns.
+
+**Key context files**: [components/component-1-document-intake/specification.md](../components/component-1-document-intake/specification.md), `configuration-patterns.md` skill, `pipeline-testing-strategy.md` skill
+
+---
+
+### 6. Code Reviewer Agent
+
+**File**: `.claude/agents/code-reviewer.md`
+
+**Responsibility**: Quality assurance and security validation of implemented code.
+
+**Why security is combined with code review**: The document pipeline handles untrusted input (user file uploads, PDFs from external sources) and sensitive data (private family documents). Security must be embedded in the architecture from the start, not bolted on as a compliance check. The Code Reviewer validates that security fundamentals are woven into every design decision.
+
+**When invoked**: After Integration Lead has validated data access contracts; after code is written (by developer or Implementer agent).
+
+**Inputs**: Code (PR or file set) + original implementation plan + relevant architecture decisions
+
+**Review focus areas**:
+- Code quality, maintainability, TypeScript strictness
+- Security by design (at system boundaries: file upload validation, input sanitisation, path traversal prevention, MIME type validation)
+- Proper use of the configuration abstraction layer (no hardcoded providers/paths)
+- Error handling consistency (correct HTTP codes, proper cleanup on failure)
+- No secrets/credentials/document content in logs
+- Consistency with patterns established across the codebase
+
+**Output format**: Review comments with severity (blocking/suggestion), security findings, pattern observations.
+
+**Scope constraints**: Does NOT make architectural decisions. If a blocking issue requires architectural change, escalates to Head of Development.
+
+**Key context files**: [process/development-principles.md](development-principles.md), [decisions/architecture-decisions.md](../decisions/architecture-decisions.md)
+
+---
+
+### 7. Project Manager Agent
+
+**File**: `.claude/agents/project-manager.md`
+
+**Responsibility**: Convert Senior Developer implementation plans into actionable, sequenced task lists.
+
+**Inputs**: Senior Developer implementation plan
+
+**Output format**: Ordered task list where each task has:
+- Clear description of what to do
+- Dependency on prior tasks (if any)
+- Complexity estimate (S/M/L)
+- Acceptance condition (how to know it's done)
+
+**Scope constraints**: Does not make design decisions. If a task description is ambiguous, flags it for the Senior Developer rather than guessing.
+
+**Output location**: `.claude/docs/tasks/component-N-tasks.md`
+
+---
+
+## Development Workflows
+
+### Learning Components (Components 2–4)
+
+Used for the processing pipeline, query, and ingestion components — where the developer is building new skills.
+
+```
+Senior Developer creates implementation plan
+         ↓
+Integration Lead validates data access contracts
+         ↓
+Project Manager creates task breakdown
+         ↓
+Developer implements (hands-on learning)
+         ↓
+Code Reviewer validates quality & security
+         ↓
+Developer refines
+         ↓
+Done
+```
+
+### Non-Learning Components (Component 1)
+
+Used for the document intake web UI — the developer's existing domain.
+
+```
+Senior Developer creates implementation plan
+         ↓
+Integration Lead validates data access contracts
+         ↓
+Project Manager creates task breakdown
+         ↓
+Implementer agent writes code + tests
+         ↓
+Code Reviewer validates quality & security
+         ↓
+Developer reviews, adjusts, merges
+         ↓
+Done
+```
+
+---
+
+## Skills vs Agents
+
+**Skills** are reusable workflow definitions and domain knowledge patterns referenced by multiple agents. They encode patterns used across components.
+
+**Agents** are role definitions — how to behave in a specific role.
+
+**Decision rule**: Ask "Will multiple agents or components need to reference this pattern?" If yes → skill. If specific to one component → belongs in that component's detailed plan.
+
+**Examples of skills** (see [process/skills-catalogue.md](skills-catalogue.md)):
+- `configuration-patterns.md` — used by every Senior Developer agent
+- `pipeline-testing-strategy.md` — used by all Senior Developers and the Implementer
+- `embedding-chunking-strategy.md` — used by Component 2 and Component 3 agents
+
+---
+
+## Reference
+
+- Agent file format examples: [everything-claude-code repo](https://github.com/affaan-m/everything-claude-code) — battle-tested agent patterns from Anthropic hackathon; shows how to structure agents as markdown files with role definitions, scope, tools, and I/O formats

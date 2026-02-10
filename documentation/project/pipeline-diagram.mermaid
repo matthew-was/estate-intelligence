@@ -1,0 +1,48 @@
+graph TD
+    subgraph "Component 1: Document Intake"
+        A1[Physical Documents] -->|Scanning| A2[Scanned Files]
+        A3[Digital Documents] --> A4[File Upload Interface]
+        A2 --> A4
+        A4 --> A5[(Storage Backend<br/>S3 or Local Filesystem)]
+    end
+
+    subgraph "Component 2: Processing & Embedding"
+        A5 --> B1{File Type?}
+        B1 -->|Scanned Image| B2[OCR Engine<br/>Docling / Tesseract]
+        B1 -->|Born-digital PDF| B3[PDF Text Extractor]
+        B1 -->|Email| B4[Email Parser<br/>Phase 3]
+        B2 --> B5[Raw Text Output]
+        B3 --> B5
+        B4 --> B5
+        B5 --> B6[Quality Assessment<br/>Score 0-100]
+        B6 --> C1[Metadata Extraction<br/>dates, types, entities]
+        C1 --> C2[Domain Context Tracking<br/>candidate flagging]
+        C2 --> C3[Semantic Chunking<br/>document-type-specific]
+        C3 --> C4[Processed Chunks<br/>with parent references]
+        C4 --> D1[Generate Embeddings<br/>configurable provider]
+        D1 --> D2[(PostgreSQL + pgvector<br/>vectors + metadata)]
+        A5 -.reference link.-> D2
+    end
+
+    subgraph "Component 3: Query & Retrieval"
+        E1[User Query] --> E2[Query Embedding]
+        E2 --> E3[Vector Similarity Search]
+        D2 --> E3
+        E3 --> E4[Retrieve Relevant Chunks]
+        E4 --> E5[RAG: Context Assembly<br/>+ LLM Provider]
+        A5 -.original docs.-> E5
+        E5 --> E6[Generated Response<br/>with Citations]
+    end
+
+    subgraph "Component 4: Continuous Ingestion"
+        F1[New Documents] --> F2[Watch Folder /<br/>API Endpoint]
+        F2 --> F3[Processing Queue]
+        F3 --> A4
+        F4[Change Tracking] --> D2
+    end
+
+    style A5 fill:#99d6ff
+    style D2 fill:#99d6ff
+    style E6 fill:#a8d5a8
+    style A1 fill:#ffb366
+    style A3 fill:#ffb366

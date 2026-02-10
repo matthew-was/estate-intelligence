@@ -1,0 +1,166 @@
+# Skills Catalogue
+
+## What Is a Skill?
+
+Skills are reusable workflow definitions and domain knowledge patterns referenced by multiple agents. They encode patterns used across components rather than being specific to one component.
+
+**Decision rule**: Ask "Will multiple agents or components need to reference this pattern?" If yes → skill. If it's specific to one component → it belongs in that component's detailed plan, not here.
+
+**Where skills live**: Once written, skill files go in `.claude/skills/`. They are referenced by agent files in `.claude/agents/`.
+
+---
+
+## Identified Skills
+
+### 1. Configuration Patterns
+
+**File**: `.claude/skills/configuration-patterns.md`
+
+**Status**: Not yet written — write first (highest priority; blocks everything else)
+
+**Purpose**: Encodes the "Infrastructure as Configuration" principle in implementation terms. This is the highest-leverage skill because every component must follow it and every Senior Developer agent needs it.
+
+**Covers**:
+- The principle stated in code terms: every external service gets an interface
+- How to define a TypeScript service interface
+- How to define a Python abstract base class for the same service
+- How to create concrete implementations (e.g., `LocalFilesystemAdapter`, `S3Adapter`)
+- How to use factory pattern or dependency injection to select implementation at runtime
+- How configuration is loaded and how it maps to implementation selection
+- Each specific abstraction point: storage, DB connections, OCR engines, LLM providers, embedding services, vector DB
+- Code examples from Component 1's `StorageService` as the first concrete reference
+
+**Used by**: Every Senior Developer agent, Implementer agent, Code Reviewer agent
+
+---
+
+### 2. Metadata Schema
+
+**File**: `.claude/skills/metadata-schema.md`
+
+**Status**: Not yet written — write second (Integration Lead needs this before validating any component)
+
+**Purpose**: Canonical metadata field definitions used across all components. Prevents components from independently inventing field names and types that conflict.
+
+**Covers**:
+- Canonical field list for document metadata (from project context + Component 2 spec)
+- Required vs optional fields per document type (deed, letter, map, email, invoice, operational log)
+- Chunk metadata fields (chunkId, parentDocumentId, chunkPosition, chunkType, treatmentTags, semanticTopic)
+- Processing metadata fields (extractionMethod, ocrConfidence, qualityScore, processedAt, embeddingModel)
+- How components can add extended metadata without breaking the base schema
+- Naming conventions (snake_case, field length limits, enum values)
+- Schema evolution strategy (how to add new fields safely)
+
+**Used by**: Integration Lead agent, all Senior Developer agents
+
+---
+
+### 3. Pipeline Testing Strategy
+
+**File**: `.claude/skills/pipeline-testing-strategy.md`
+
+**Status**: Not yet written — write third (must exist before any code is written)
+
+**Purpose**: Testing patterns specific to document processing pipelines. Pipeline components test differently than query components or web applications.
+
+**Covers**:
+- Vitest setup for TypeScript packages (backend, frontend)
+- pytest setup for Python packages (processing pipeline)
+- Pipeline stage isolation: how to test one stage without triggering others
+- Fixture document strategy: sample files for testing (PDFs, scanned images, typed letters)
+- Test database management: separate `estate_archive_test` database, truncation/reset pattern
+- Integration testing within package boundaries (not cross-package E2E)
+- What NOT to test (browser E2E, cross-package boundary, performance in Phase 1)
+- Coverage philosophy: critical paths + integration points, not percentage targets
+- How to test OCR extraction in isolation (fixture documents with known expected output)
+
+**Used by**: All Senior Developer agents, Implementer agent, Code Reviewer agent
+
+---
+
+### 4. OCR & Text Extraction Workflow
+
+**File**: `.claude/skills/ocr-extraction-workflow.md`
+
+**Status**: Not yet written — write before Component 2 implementation
+
+**Purpose**: Standard workflow for extracting text from different document types. Encodes the Docling/Tesseract decision tree and quality assessment approach.
+
+**Covers**:
+- File type detection algorithm (born-digital PDF vs scanned PDF, image formats)
+- When to use pdfplumber vs Docling vs Tesseract (decision tree with examples)
+- Docling invocation pattern (local vs API mode, timeout handling)
+- Tesseract invocation via pytesseract (for fallback)
+- How to compute OCR confidence score from Docling/Tesseract output
+- Text coherence scoring (character distribution, word frequency, sentence structure checks)
+- Graceful degradation ladder: Docling → Tesseract → PDF text extraction → metadata-only
+- Output format: raw text + extraction method + confidence values
+
+**Used by**: Component 2 Senior Developer agent, Code Reviewer agent
+
+---
+
+### 5. Embedding & Chunking Strategy
+
+**File**: `.claude/skills/embedding-chunking-strategy.md`
+
+**Status**: Not yet written — write after Component 2 Phase 1 (informed by real implementation)
+
+**Purpose**: Reference patterns for semantic chunking and vector embedding generation + storage. Shared between Component 2 (embedding stage) and Component 3 (query embedding uses same abstraction).
+
+**Covers**:
+- What an embedding is and why chunk size matters (concise reference)
+- Target chunk sizes and how to choose (500–1000 tokens guidance; adapt per document type)
+- Heuristic chunking algorithm for Phase 1 (paragraph break detection, sentence boundary respect, minimum chunk size guard)
+- Parent document reference pattern (how to structure the parent-child relationship in the database)
+- Map/plan single-chunk + metadata-chunk pattern (from Component 2 spec)
+- pgvector storage pattern (table structure, index type, similarity metric selection)
+- Embedding provider abstraction (interface for OpenAI, Anthropic, local models; must match between document and query embedding)
+- How quality score affects storage/retrieval weighting
+
+**Used by**: Component 2 Senior Developer agent, Component 3 Senior Developer agent, Integration Lead agent
+
+---
+
+### 6. RAG Implementation
+
+**File**: `.claude/skills/rag-implementation.md`
+
+**Status**: Not yet written — write before Component 3 design
+
+**Purpose**: Standard patterns for retrieval-augmented generation — the core of Component 3's value.
+
+**Covers**:
+- Query embedding (same abstraction layer as document embedding — provider must match)
+- Similarity search query patterns for pgvector (cosine similarity, L2 distance; when to use each)
+- Context assembly: how many chunks to retrieve (top-N), how to rank them
+- Parent document retrieval pattern (when and how to fetch full parent for extended context)
+- Prompt construction for RAG (system prompt, context injection, user query formatting)
+- LLM provider abstraction (Claude, GPT, local model — same interface)
+- Response format: answer with source citations (document name, date, chunk reference)
+- Uncertainty signalling: how to express low confidence in the answer
+
+**Used by**: Component 3 Senior Developer agent, Code Reviewer agent
+
+---
+
+## Skills Not Yet Identified
+
+If during implementation a pattern is identified that will be needed by multiple agents or components, document it here before writing the skill file.
+
+| Pattern | Why it might be a skill | Priority |
+| --- | --- | --- |
+| *(add as discovered)* | | |
+
+---
+
+## Creation Order
+
+Write skills in this order — each skill is a dependency for work that comes after it:
+
+1. **configuration-patterns.md** — blocks all Senior Developer agents
+2. **metadata-schema.md** — blocks Integration Lead validation of any component
+3. **pipeline-testing-strategy.md** — must exist before code is written
+4. **ocr-extraction-workflow.md** — needed before Component 2 implementation
+5. **embedding-chunking-strategy.md** — needed before Component 2 embedding stage + Component 3
+6. **rag-implementation.md** — needed before Component 3 design
