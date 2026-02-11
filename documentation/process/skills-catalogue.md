@@ -12,6 +12,31 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 
 ## Identified Skills
 
+### 0. Agent File Conventions
+
+**File**: `.claude/skills/agent-file-conventions.md`
+
+**Status**: Not yet written — write before any agent files are created (prerequisite for all agents)
+
+**Purpose**: Defines what a well-formed `.claude/agents/*.md` file looks like for this project. Without this, each agent file risks being inconsistent — missing scope constraints, ignoring context loading, or producing an agent that drifts off-role.
+
+**Covers**:
+- The Claude Code agent file format: required sections, frontmatter (if any), system prompt structure
+- How to write a system prompt that produces consistent, in-scope agent behaviour (vs a description of the role)
+- Scope constraints written as instructions (`"Do NOT..."`, `"ONLY produce..."`) rather than narrative descriptions
+- How to specify which context files the agent reads at session start (and the instruction to read them, not just list them)
+- Output format specification: how to tell the agent exactly what structure to produce
+- Escalation and handoff rules: when and how to signal that a phase is complete
+- Tool restrictions: which Claude Code tools are appropriate per agent type
+- Example: the Product Owner agent as a worked example of a well-formed file
+- Anti-patterns: what makes an agent file fail in practice (too broad, no constraints, no output structure)
+
+**Used by**: Every agent file creation task; Code Reviewer when auditing agent quality
+
+**Why this is a skill and not an agent**: It is a one-time reference document consulted during agent file authoring, not an ongoing role. Once all agent files are created, it remains useful for adding new agents or revising existing ones.
+
+---
+
 ### 1. Configuration Patterns
 
 **File**: `.claude/skills/configuration-patterns.md`
@@ -158,9 +183,10 @@ If during implementation a pattern is identified that will be needed by multiple
 
 Write skills in this order — each skill is a dependency for work that comes after it:
 
-1. **configuration-patterns.md** — blocks all Senior Developer agents
-2. **metadata-schema.md** — blocks Integration Lead validation of any component
-3. **pipeline-testing-strategy.md** — must exist before code is written
-4. **ocr-extraction-workflow.md** — needed before Component 2 implementation
-5. **embedding-chunking-strategy.md** — needed before Component 2 embedding stage + Component 3
-6. **rag-implementation.md** — needed before Component 3 design
+1. **agent-file-conventions.md** — write before any agent files are created (prerequisite for all agents)
+2. **configuration-patterns.md** — blocks all Senior Developer agents
+3. **metadata-schema.md** — blocks Integration Lead validation of any component
+4. **pipeline-testing-strategy.md** — must exist before code is written
+5. **ocr-extraction-workflow.md** — needed before Component 2 implementation
+6. **embedding-chunking-strategy.md** — needed before Component 2 embedding stage + Component 3
+7. **rag-implementation.md** — needed before Component 3 design

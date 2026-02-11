@@ -8,7 +8,7 @@ Questions that must be answered before or during implementation. Use this docume
 
 ## Questions Blocking All Implementation
 
-These must be resolved before any component coding begins. Work through them with the Head of Development agent.
+These must be resolved before any component coding begins. Work through them with the Head of Development agent (after the Product Owner has produced the user requirements document).
 
 ---
 
@@ -35,6 +35,7 @@ These must be resolved before any component coding begins. Work through them wit
 **Who decides**: Head of Development
 
 **Known abstraction points (from project context)**:
+
 - Storage backend (local filesystem ↔ S3)
 - Database connections (local PostgreSQL ↔ RDS)
 - OCR engines (Docling ↔ Tesseract ↔ fallback)
@@ -56,6 +57,7 @@ These must be resolved before any component coding begins. Work through them wit
 **Why it blocks**: Integration Lead cannot own the schema without a formal definition. Every component has metadata needs that must align.
 
 **Known fields (from Component 2 spec)**:
+
 - Document: id, originalFilename, fileSizeBytes, contentType, uploadedAt, storageLocation, md5Hash, documentDate, documentType, notes
 - Processing: extractionMethod, qualityScore, ocrConfidence, processedAt
 - Enriched: refinedCategory, extractedDates, detectedEntities, structuralMarkers
@@ -74,6 +76,7 @@ These must be resolved before any component coding begins. Work through them wit
 **Why it blocks**: Must exist before any code is written. Determines test DB setup, fixture strategy, what gets mocked vs real.
 
 **Known answers (from Component 1 spec)**:
+
 - Framework: Vitest (TypeScript), pytest (Python)
 - Scope: Integration tests within package boundaries (not E2E)
 - Test database: Separate real PostgreSQL instance (`estate_archive_test`)
@@ -98,6 +101,28 @@ These must be resolved before any component coding begins. Work through them wit
 
 ---
 
+### UQ-006: Python Component Placement and Configuration Reach in the Monorepo
+
+**Question**: Component 2 uses Python. The monorepo is structured around pnpm workspaces (TypeScript/Node.js). How does Python code live alongside TypeScript code, and critically — how does the shared configuration system reach the Python service?
+
+**Why it blocks**: The `configuration-patterns.md` skill cannot be complete if it only covers TypeScript patterns. The Integration Lead cannot define cross-language contracts without knowing the boundary. The Head of Development cannot answer UQ-002 (configuration abstraction map) without this resolved.
+
+**Who decides**: Head of Development
+
+**Options**:
+
+1. Python is a separate Docker service under `services/processing/` — managed independently (own virtualenv, own test runner, own CI steps). Config passed at container startup via environment variables.
+2. Python lives entirely outside the monorepo (separate repo, separate deployment artifact). Stronger isolation but breaks co-located documentation and shared Docker Compose.
+3. Minimise Python surface area — wrap Python tools via CLI calls from Node.js orchestration, keeping the monorepo TypeScript-first. Python becomes a thin tool layer, not a service.
+
+**Configuration question** (must answer regardless of option chosen): Does the Python service read from the same config files as the TypeScript services? Or does it receive config via environment variables only? This determines whether `configuration-patterns.md` needs a Python config section or just TypeScript.
+
+**Source**: Conversations 5/6 — "TypeScript/Node.js for orchestration. Python for OCR and AI/ML components" with explicit note: "Action required: Decide Python's role relative to monorepo structure"
+
+**Status**: Open — resolve with Head of Development before writing `configuration-patterns.md` skill
+
+---
+
 ## Questions Blocking Specific Components
 
 These block a specific component's implementation but don't prevent other components from starting.
@@ -109,6 +134,7 @@ These block a specific component's implementation but don't prevent other compon
 **Question**: What exact rules define a paragraph boundary for each document type? How do you respect sentence boundaries within a chunk? What's the fallback if heuristics produce incoherent chunks?
 
 **Agreed decisions**:
+
 - Phase 1 uses heuristics (not ML-based)
 - Target chunk size: 500–1000 tokens
 - Preserve sentence boundaries
@@ -127,6 +153,7 @@ These block a specific component's implementation but don't prevent other compon
 **Question**: What patterns reliably distinguish each document type? What confidence threshold triggers a suggestion vs certainty? What's the fallback when patterns don't match clearly?
 
 **Agreed decisions**:
+
 - Phase 1 uses pattern-based heuristics (not LLM)
 - Categories: letter, deed, map, plan, invoice, operational log, email, survey
 
@@ -193,6 +220,24 @@ These are not blocking but should be documented for planning Phase 2.
 **Current state**: Not established. Phase 1 is CLI-only, latency less critical. Becomes important for Phase 2 web UI.
 
 **Status**: Establish baseline during Phase 1, optimise in Phase 4
+
+---
+
+### UQ-POST-007: Security Boundary for Component 2 Outputs
+
+**Question**: Component 2 is Python-based backend processing that sits behind the Express API. How are C2's outputs (extracted text, embeddings, chunks) secured as they move through the pipeline? Does C2 call the Express API directly, or does orchestration call C2?
+
+**Current state**: The three-layer security model (Browser → Next.js → Express) is established for user-facing requests. C2 is internal processing — but the data flow and auth mechanism between Express/orchestration and the Python processing service is not defined.
+
+**Options**:
+
+1. Express orchestrates C2 via internal function call (same process/container, no network hop)
+2. Express calls C2 via internal HTTP (separate container, API key auth on internal network)
+3. Message queue between Express and C2 (async, decoupled)
+
+**Source**: Conversations 5/6 — "Action required: Clarify how Component 2's outputs are secured as they move through pipeline"
+
+**Status**: Deferred — decide before Component 2 implementation begins
 
 ---
 

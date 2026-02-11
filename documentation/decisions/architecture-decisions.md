@@ -261,3 +261,38 @@ All significant architectural and design decisions made during the design phase.
 **Rationale**: Simple to implement and inspect. No schema migration needed. Phase 2 can migrate to a database table when automated flagging is added.
 
 **Source**: Component 2 specification.
+
+---
+
+### ADR-C2-010: Flag Low-Text Diagrams for Human Supplementary Context
+
+**Decision**: When a diagram or map is processed and insufficient text is extracted to make it discoverable (no title, labels, or surrounding context), the system flags it for human review. The human provides a short descriptive note that is stored as a metadata field.
+
+**Rationale**: Vector search relies on text context to surface diagrams. A diagram without extractable text will never be retrieved. Flagging and prompting for human input is consistent with the "system flags, human decides" principle and prevents silently lost documents.
+
+**Risk accepted**: Requires UI/UX to surface the flag and accept the note. Exact threshold for "insufficient text" is implementation-defined.
+
+**Source**: Conversation 2 extract — "There should probably be a flag when a map or diagram doesn't have much text for a human to provide some additional context."
+
+---
+
+## Cross-Cutting: Phase Planning
+
+---
+
+### ADR-FUTURE-001: Multi-Tenancy Data Preparation in Phase 1 (Logic Deferred to Phase 3–4)
+
+**Decision**: Phase 1 includes lightweight multi-tenancy scaffolding in data and storage structures, but implements no multi-tenant logic. Specifically:
+
+1. `intake_documents` table includes a `tenant_id` column (nullable, unused in Phase 1)
+2. Storage paths use a tenant-namespaced format: `tenant-{id}/archives/YYYY/MM/uuid.ext` even in single-tenant Phase 1 (using a fixed default tenant ID)
+
+**Context**: The project may eventually serve multiple family estates. Good structural choices now avoid a full refactor later.
+
+**Rationale**: Adding a nullable column and a path naming convention in Phase 1 has near-zero cost. Retrofitting later requires data migration. The `StorageService` interface already supports this via config — the path format is a convention, not a code change. Phase 1 uses a single hardcoded tenant ID; Phase 3–4 adds routing logic.
+
+**Phase 3–4 plan**: Add tenant_id to API keys (keys embed tenant context), tenant routing middleware, and per-tenant config resolution. Multi-tenancy pattern (shared DB vs separate DBs per tenant) to be decided at Phase 3–4 planning.
+
+**Risk accepted**: Slightly more complex path structure in Phase 1. Mitigated by a fixed default tenant ID constant.
+
+**Source**: Conversation 3 extract — "Add a tenant_id field to intake_documents table (even though you won't use it yet)" and "Instead of uploads/2024/01/uuid.pdf, use tenant-{id}/archives/2024/01/uuid.pdf"

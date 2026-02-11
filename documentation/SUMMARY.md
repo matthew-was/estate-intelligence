@@ -6,6 +6,10 @@
 
 The `initial documentation/` directory contained high-quality, well-considered design work across 10 files — two complete component specs, an agent workflow design, a combined overview, and pipeline diagrams. The content was strong but scattered with inconsistent naming, no navigational structure, and no clear indication of which document superseded which.
 
+### Archive Convention
+
+All external documents that were used as source material during documentation reorganisation have been moved to the `archive/` directory. This convention applies going forward: any external document (conversations, briefings, exported content from other tools) that is read and processed into part of the `documentation/` directory should be moved to `archive/` after processing, for future reference. The `documentation/` directory is the single source of truth; `archive/` is the provenance record.
+
 Key findings:
 - Components 1 and 2 are fully specified and ready for Phase 1 implementation
 - The agent workflow design (in `working-with-claude.md`) was complete but had no `.claude/` directory to make it operational
@@ -76,9 +80,11 @@ The `process/agent-workflow.md` document defines a complete 7-agent workflow. No
 │   ├── senior-developer-component-1.md
 │   ├── senior-developer-component-2.md
 │   ├── implementer.md
+│   ├── pair-programmer.md
 │   ├── code-reviewer.md
 │   └── project-manager.md
 └── skills/
+    ├── agent-file-conventions.md
     ├── configuration-patterns.md
     ├── metadata-schema.md
     ├── pipeline-testing-strategy.md
@@ -131,9 +137,11 @@ For each agent, the file should contain: role definition, inputs, output format,
 
 ### `integration-lead.md`
 
-**Role**: Owns the PostgreSQL backend as the single source of truth.
+**Role**: Owns the backend API and PostgreSQL schema as shared infrastructure — a cross-cutting concern used by all components, not a step in the pipeline.
 
-**Input**: Data access requirement proposals from Senior Developers
+**Architectural position**: The Integration Lead sits outside the component pipeline. Every component depends on the contracts it defines, but no component owns it. It is the shared foundation that prevents the components from independently evolving the database in incompatible directions.
+
+**Input**: Data access requirement proposals from Senior Developers (any component)
 
 **Output format**: Approved schema changes + migration files, API contracts (TypeScript interfaces), rejections with recommended alternatives
 
@@ -167,8 +175,8 @@ For each agent, the file should contain: role definition, inputs, output format,
 **Escalation**: If component has 5+ subsystems or 3–4 months of work, escalate to Team Lead structure
 
 Component-specific instances:
-- `senior-developer-component-1.md` — context: [components/component-1-document-intake/specification.md](components/component-1-document-intake/specification.md)
-- `senior-developer-component-2.md` — context: all files in [components/component-2-processing-and-embedding/](components/component-2-processing-and-embedding/)
+- `senior-developer-component-1.md` — context: [components/component-1-document-intake/specification.md](components/component-1-document-intake/specification.md), `.claude/docs/requirements/user-requirements.md`, `.claude/docs/requirements/phase-1-user-stories.md`, [decisions/architecture-decisions.md](decisions/architecture-decisions.md)
+- `senior-developer-component-2.md` — context: all files in [components/component-2-processing-and-embedding/](components/component-2-processing-and-embedding/), `.claude/docs/requirements/user-requirements.md`, [decisions/architecture-decisions.md](decisions/architecture-decisions.md)
 
 ---
 
@@ -227,6 +235,29 @@ Component-specific instances:
 
 ---
 
+### `pair-programmer.md`
+
+**Role**: Active coding partner during developer-led implementation (Components 2–4).
+
+**When to use**: When the developer is writing code directly (learning components). Replaces the Implementer agent in this context. The developer leads; the pair-programmer assists.
+
+**Behaviours**:
+
+- Answers questions about the current implementation task without going off-script
+- Suggests approaches when the developer is stuck, presenting options rather than decisions
+- Reviews code snippets inline as they are written — flags issues before they compound
+- Explains unfamiliar APIs, library patterns, or ML concepts on request
+- Does NOT write whole modules autonomously; assists with specific functions, blocks, or debugging
+- Does NOT override the Senior Developer plan without flagging it explicitly
+
+**Scope constraints**: Operates within the task defined by the Project Manager task list. If the developer's approach diverges from the plan in a meaningful way, flags it and asks whether to update the plan or continue.
+
+**Key context to include**: Current component specification, Project Manager task list for the component, `configuration-patterns.md` skill, relevant component-specific skills
+
+**Difference from Implementer**: The Implementer writes code autonomously from a plan. The pair-programmer works alongside the developer interactively, keeping the human in the learning loop at all times.
+
+---
+
 ## Skills to Create
 
 Skills live in `.claude/skills/`. Write them in this order — each is a dependency for work that follows.
@@ -234,6 +265,14 @@ Skills live in `.claude/skills/`. Write them in this order — each is a depende
 Full descriptions in [process/skills-catalogue.md](process/skills-catalogue.md).
 
 ### Creation Order
+
+**0. `agent-file-conventions.md`** — Write before any agent files are created
+
+- What a well-formed `.claude/agents/*.md` file looks like
+- System prompt structure, scope constraints as instructions, context loading, output format specification, tool restrictions
+- Worked example: Product Owner agent
+- Anti-patterns: what makes an agent file fail in practice
+- Used when: creating or revising any agent file
 
 **1. `configuration-patterns.md`** — Write first (blocks all Senior Developer agents)
 
@@ -304,55 +343,59 @@ This sequence minimises rework by resolving dependencies before they block work.
 
 ### Foundation (Before Any Code)
 
-**Step 1**: Use Head of Development agent to work through UQ-001, UQ-002, UQ-003, UQ-005
+**Step 1**: Write `agent-file-conventions.md` skill — defines what a well-formed agent file looks like. Prerequisite for all agent creation.
 
-**Step 2**: Write `configuration-patterns.md` skill (using Component 1 StorageService as first example)
+**Step 2**: Product Owner agent — finalise project scope. Produce a user requirements document covering all known use cases, user types, and non-functional requirements. Output: `.claude/docs/requirements/user-requirements.md`
 
-**Step 3**: Write `metadata-schema.md` skill (informed by Step 1 answers)
+**Step 3**: Product Owner agent — formalise Phase 1 user stories from [project/overview.md](project/overview.md) and the user requirements document → `.claude/docs/requirements/phase-1-user-stories.md`
 
-**Step 4**: Write `pipeline-testing-strategy.md` skill
+**Step 4**: Use Head of Development agent to work through UQ-001, UQ-002, UQ-003, UQ-005, UQ-006 (informed by the user requirements document from Step 2)
 
-**Step 5**: Set up Integration Lead agent. Its first task: review C1 + C2 specs for data access compliance; answer UQ-001 and UQ-005 formally.
+**Step 5**: Write `configuration-patterns.md` skill (using Component 1 StorageService as first example; informed by UQ-006 answer)
+
+**Step 6**: Write `metadata-schema.md` skill (informed by Step 4 answers)
+
+**Step 7**: Write `pipeline-testing-strategy.md` skill
+
+**Step 8**: Set up Integration Lead agent. Its first task: review C1 + C2 specs for data access compliance; answer UQ-001 and UQ-005 formally.
 
 ### Component 1 Implementation
 
-**Step 6**: Product Owner agent — formalise Phase 1 user stories from [project/overview.md](project/overview.md) use cases → `.claude/docs/requirements/phase-1-user-stories.md`
+**Step 9**: Senior Developer (Component 1) agent — create implementation plan
 
-**Step 7**: Senior Developer (Component 1) agent — create implementation plan
+**Step 10**: Integration Lead validates Component 1 data access patterns
 
-**Step 8**: Integration Lead validates Component 1 data access patterns
+**Step 11**: Project Manager — create task breakdown → `.claude/docs/tasks/component-1-tasks.md`
 
-**Step 9**: Project Manager — create task breakdown → `.claude/docs/tasks/component-1-tasks.md`
+**Step 12**: Implementer agent — writes Component 1 code + tests
 
-**Step 10**: Implementer agent — writes Component 1 code + tests
+**Step 13**: Code Reviewer validates
 
-**Step 11**: Code Reviewer validates
-
-**Step 12**: Developer reviews and merges
+**Step 14**: Developer reviews and merges
 
 ### Component 2 Implementation
 
-**Step 13**: Answer UQ-C2-001 and UQ-C2-002 (requires looking at actual estate documents)
+**Step 15**: Answer UQ-C2-001 and UQ-C2-002 (requires looking at actual estate documents)
 
-**Step 14**: Write `ocr-extraction-workflow.md` skill
+**Step 16**: Write `ocr-extraction-workflow.md` skill
 
-**Step 15**: Senior Developer (Component 2) agent — create implementation plan. Uses all files in [components/component-2-processing-and-embedding/](components/component-2-processing-and-embedding/).
+**Step 17**: Senior Developer (Component 2) agent — create implementation plan. Uses all files in [components/component-2-processing-and-embedding/](components/component-2-processing-and-embedding/).
 
-**Step 16**: Integration Lead validates Component 2 data access patterns
+**Step 18**: Integration Lead validates Component 2 data access patterns
 
-**Step 17**: Project Manager — create task breakdown
+**Step 19**: Project Manager — create task breakdown → `.claude/docs/tasks/component-2-tasks.md`
 
-**Step 18**: Developer implements Component 2 (learning component — no Implementer agent)
+**Step 20**: Developer implements Component 2 (learning component — pair-programmer agent assists)
 
-**Step 19**: Code Reviewer validates
+**Step 21**: Code Reviewer validates
 
 ### Component 3 Design
 
-**Step 20**: Write `embedding-chunking-strategy.md` skill (now informed by real implementation)
+**Step 22**: Write `embedding-chunking-strategy.md` skill (now informed by real implementation)
 
-**Step 21**: Design Component 3 using [components/component-3-query-retrieval/README.md](components/component-3-query-retrieval/README.md) as the brief
+**Step 23**: Design Component 3 using [components/component-3-query-retrieval/README.md](components/component-3-query-retrieval/README.md) as the brief
 
-**Step 22**: Write `rag-implementation.md` skill
+**Step 24**: Write `rag-implementation.md` skill
 
 **Then**: Continue with Component 3 implementation (developer implements — learning component), then Component 4 design and implementation.
 

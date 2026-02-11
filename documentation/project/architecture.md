@@ -172,18 +172,27 @@ See [decisions/unresolved-questions.md](../decisions/unresolved-questions.md) UQ
 
 ## Monorepo Structure
 
+The repository is a **monorepo**, but not all components are tightly coupled Node.js/TypeScript packages. The components have substantially different technology stacks (TypeScript for C1, Python for C2, potentially different stacks for C3/C4). The monorepo is primarily a **coordination home** — it holds the `docker-compose.yml` that starts the full system, the documentation, and the TypeScript packages that are genuinely shared (types, schemas). Each service/component within it is independently runnable and could be extracted to its own repository if needed.
+
+**What lives in the monorepo root**: Docker Compose orchestration, documentation, shared TypeScript types, setup scripts, and CI configuration. The root `package.json` is a pnpm workspace root for the TypeScript components only — the Python processing service (`services/processing/`) is not a pnpm workspace member and manages its own dependencies via `pyproject.toml`.
+
+**Each component is standalone**: `apps/frontend`, `apps/backend`, and `services/processing` each have their own dependency management, their own test setup, and their own runtime. They are co-located for convenience, not because they share a build system.
+
+**ADR-002 decision**: See [decisions/architecture-decisions.md](../decisions/architecture-decisions.md) ADR-002.
+
 ```text
 estate-archive/
 ├── apps/
-│   ├── frontend/          ← Next.js 14+ (TypeScript)
-│   └── backend/           ← Express 5 (TypeScript)
+│   ├── frontend/          ← Next.js 14+ (TypeScript) — pnpm workspace member
+│   └── backend/           ← Express 5 (TypeScript) — pnpm workspace member
 ├── packages/
-│   └── shared/            ← Shared Zod schemas, TypeScript types
+│   └── shared/            ← Shared Zod schemas, TypeScript types — pnpm workspace member
 ├── services/
-│   └── processing/        ← Python (Component 2 extraction pipeline)
-├── docker-compose.yml
-├── setup.sh
-└── package.json           ← pnpm workspace root
+│   └── processing/        ← Python (Component 2 extraction pipeline) — standalone, pyproject.toml
+├── documentation/         ← All project documentation
+├── docker-compose.yml     ← Starts the full system (all components)
+├── setup.sh               ← Local dev environment setup
+└── package.json           ← pnpm workspace root (TypeScript components only)
 ```
 
 ---

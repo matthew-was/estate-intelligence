@@ -54,7 +54,23 @@ documentation/
 
 The `.claude/` directory structure and all agents and skills still need to be created. See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup guide, including:
 
-- 7 agents to create (Product Owner, Head of Development, Integration Lead, Senior Developer × 2, Implementer, Code Reviewer, Project Manager)
-- 6 skills to create (in dependency order)
-- 5 unresolved questions to answer before coding begins
-- 22-step recommended implementation sequence
+- 8 agents to create (Product Owner, Head of Development, Integration Lead, Senior Developer × 2, Implementer, Pair Programmer, Code Reviewer, Project Manager)
+- 7 skills to create (in dependency order — `agent-file-conventions.md` first)
+- 6 unresolved questions to answer before coding begins (UQ-001 through UQ-006)
+- 24-step recommended implementation sequence
+
+### Key Output Locations
+
+As agents complete their phases, outputs are written here:
+
+```
+.claude/docs/
+├── requirements/
+│   ├── user-requirements.md       ← Product Owner (Step 1) — authoritative scope baseline
+│   └── phase-1-user-stories.md    ← Product Owner (Step 2)
+└── tasks/
+    ├── component-1-tasks.md       ← Project Manager (Step 10)
+    └── component-2-tasks.md       ← Project Manager (Step 18)
+```
+
+These documents are the handoff mechanism between agents. Each subsequent agent reads from the relevant output documents of prior phases. When starting a new agent session, pass the appropriate documents as context — see [documentation/process/agent-workflow.md](documentation/process/agent-workflow.md) for the per-agent context table.

@@ -5,6 +5,7 @@
 This project uses a **human-in-the-loop** multi-agent workflow. Agents analyse, synthesise, and present options. The developer makes all final decisions. This is intentional — not a limitation.
 
 **Why not full autonomy?**
+
 - Complex architectural decisions involve domain knowledge that agents can't fully have
 - The project will pause and resume many times; clear agent roles ensure context can be re-established
 - Confident wrong assumptions compound quickly in a pipeline system — human checkpoints prevent this
@@ -12,9 +13,37 @@ This project uses a **human-in-the-loop** multi-agent workflow. Agents analyse, 
 
 ---
 
+## How to Start a Session With an Agent
+
+Agents have no memory between sessions. Each conversation starts fresh. To re-establish context quickly:
+
+**Starting any agent session**:
+1. Open a new conversation with the relevant agent (via `/agents` in Claude Code, or by referencing the agent file)
+2. Say what phase you are in, for example: *"We are in the Product Owner phase. The user requirements document already exists at `.claude/docs/requirements/user-requirements.md`. I want to work on Phase 1 user stories."*
+3. The agent will read its key context files as defined in its role. Point it at any additional output documents from prior phases that are relevant.
+
+**Context documents to pass at each phase**:
+
+| Agent | Pass these documents |
+| --- | --- |
+| Product Owner | [project/overview.md](../project/overview.md) |
+| Head of Development | [project/architecture.md](../project/architecture.md), `.claude/docs/requirements/user-requirements.md`, [decisions/unresolved-questions.md](../decisions/unresolved-questions.md) |
+| Integration Lead | All component specs, `.claude/docs/requirements/user-requirements.md`, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md) |
+| Senior Developer | Component specification, `.claude/docs/requirements/phase-1-user-stories.md`, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md), Integration Lead contracts |
+| Project Manager | Senior Developer implementation plan |
+| Implementer / Pair Programmer | Project Manager task list, component specification |
+| Code Reviewer | Code under review, original implementation plan, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md) |
+
+**Output documents are the handoff mechanism**: Agents communicate across sessions through documents written to disk. If a document exists at the expected location, the next agent picks it up. This is why every agent's definition of done requires output written to a file — not just discussed in chat.
+
+**Resuming within a phase**: If a session was interrupted mid-phase, re-open the conversation, state the current task, and point the agent at the partially completed output document. It will continue from there.
+
+---
+
 ## Why These Agents Exist
 
 The project grew from informal design conversations scattered across multiple chat sessions. The agent structure exists to:
+
 - Give each type of work a consistent, documented role
 - Ensure no component is designed in isolation from the others (Integration Lead enforces this)
 - Enable the developer to engage at different levels (strategic with Head of Development, task-level with Project Manager)
@@ -28,16 +57,27 @@ The project grew from informal design conversations scattered across multiple ch
 
 **File**: `.claude/agents/product-owner.md`
 
-**Responsibility**: Convert raw requirements and use cases into formal user stories with acceptance criteria.
+**Responsibility**: Define and own the project scope. Produces the user requirements document (the authoritative scope baseline) and converts requirements into formal user stories with acceptance criteria. This is the first agent engaged on the project — nothing should be built without a clear requirements foundation.
 
-**Inputs**: Project goals, use cases, feature descriptions, phase requirements
+**First engagement**: Before any architectural or implementation work, the Product Owner produces a user requirements document that captures all known use cases, user types, functional requirements, and non-functional requirements. This prevents scope gaps from emerging mid-implementation.
 
-**Output format**: Structured user stories — *As a [role], I want [action] so that [benefit]* — with:
-- Acceptance criteria (testable, unambiguous)
-- Definition of done
-- Priority and phase assignment
+**Inputs**: Project goals, use cases, feature descriptions, phase requirements, developer input on scope boundaries
 
-**Scope constraints**: Does NOT make architectural decisions. If a requirement has architectural implications, flags it for the Head of Development agent.
+**Output format**:
+
+- User requirements document: `.claude/docs/requirements/user-requirements.md` — structured list of all requirements with priority (must/should/could), user type, and rationale
+- User stories: *As a [role], I want [action] so that [benefit]* — with acceptance criteria, definition of done, and phase assignment
+- Flags for the Head of Development where a requirement has architectural implications
+
+**Scope constraints**: Does NOT make architectural decisions. Captures what the system must do; not how it does it. If a requirement implies a significant architectural choice, flags it explicitly rather than embedding an assumption.
+
+**Definition of done — Product Owner phase**: The Product Owner phase is complete when:
+1. A user requirements document exists at `.claude/docs/requirements/user-requirements.md` covering all user types and use cases
+2. Phase 1 user stories exist at `.claude/docs/requirements/phase-1-user-stories.md` with testable acceptance criteria
+3. Any requirements with architectural implications are flagged for the Head of Development
+4. The developer has reviewed and approved the requirements document
+
+**Handoff to Head of Development**: Pass the user requirements document. The Head of Development uses it as input when resolving unresolved architectural questions.
 
 **Key context files**: [project/overview.md](../project/overview.md) (use cases and project goals)
 
@@ -49,32 +89,45 @@ The project grew from informal design conversations scattered across multiple ch
 
 **File**: `.claude/agents/head-of-development.md`
 
-**Responsibility**: Evolve system architecture based on requirements; make cross-cutting architectural decisions; ensure the Infrastructure as Configuration principle is upheld in all decisions.
+**Responsibility**: Evolve system architecture based on requirements; make cross-cutting architectural decisions; ensure the Infrastructure as Configuration principle is upheld in all decisions. Engaged after the Product Owner has produced a requirements baseline.
 
-**Inputs**: Requirements from Product Owner, component proposals from Senior Developers, questions about cross-cutting concerns
+**Inputs**: User requirements document from Product Owner, component proposals from Senior Developers, questions about cross-cutting concerns, unresolved questions from [decisions/unresolved-questions.md](../decisions/unresolved-questions.md)
 
 **Output format**:
-- Architecture decisions (recorded in [decisions/architecture-decisions.md](../decisions/architecture-decisions.md))
-- Updated architecture documentation
-- Validation or rejection of component specification choices
 
-**Scope constraints**: Cross-cutting decisions ONLY. Does not write implementation plans. Acts as a discussion partner, not an autonomous decision-maker — presents options with tradeoffs for developer to choose.
+- Architecture decisions recorded in [decisions/architecture-decisions.md](../decisions/architecture-decisions.md) (ADR format: decision, context, rationale, risk, tradeoffs)
+- Updated architecture documentation
+- Validation or rejection of component specification choices with reasoning
+- Answers to unresolved questions (updates [decisions/unresolved-questions.md](../decisions/unresolved-questions.md))
+
+**Scope constraints**: Cross-cutting decisions ONLY. Does not write implementation plans. Acts as a discussion partner, not an autonomous decision-maker — presents options with tradeoffs for the developer to choose from.
 
 **Hard rule**: Every decision must honour the Infrastructure as Configuration principle (see [process/development-principles.md](development-principles.md)).
+
+**Definition of done — Head of Development phase**: The Head of Development phase is complete when:
+1. UQ-001, UQ-002, UQ-003, and UQ-005 are answered and recorded in [decisions/unresolved-questions.md](../decisions/unresolved-questions.md)
+2. Any architectural flags raised by the Product Owner are resolved as ADRs
+3. The architecture document reflects all decisions made
+4. The developer has reviewed and approved the decisions
+
+**Handoff to Senior Developer**: Pass the updated architecture decisions and resolved unresolved questions. The Senior Developer uses these as constraints when writing the implementation plan.
 
 **Key context files**: [project/architecture.md](../project/architecture.md), [process/development-principles.md](development-principles.md), [decisions/architecture-decisions.md](../decisions/architecture-decisions.md)
 
 ---
 
-### 3. Integration Lead Agent (Critical)
+### 3. Integration Lead Agent (Critical — Cross-Cutting)
 
 **File**: `.claude/agents/integration-lead.md`
+
+**Architectural position**: The Integration Lead sits **outside** the component pipeline. It is not a step in a sequence — it is shared infrastructure that every component depends on. It owns the backend API and PostgreSQL schema as a cross-cutting concern. Components do not own any part of the database independently; they make requests to the Integration Lead, which approves or rejects them.
 
 **Responsibility**: Own the PostgreSQL backend as the single source of truth. Manages schema evolution, API contracts, and data access patterns. Prevents multiple components from independently querying the database in ways that break on schema changes.
 
 **Why this agent is critical**: Without it, each component team independently decides how to access the database. Over time this creates brittle, tightly coupled systems that break when the schema changes. The Integration Lead is the gatekeeper that prevents this.
 
 **Specific tasks**:
+
 - Manage schema evolution and migrations
 - Define API interfaces that all components depend on
 - Validate component data access patterns (no ad-hoc queries allowed)
@@ -85,11 +138,13 @@ The project grew from informal design conversations scattered across multiple ch
 **Inputs**: Data access requirement proposals from Senior Developers
 
 **Output format**:
+
 - Approved schema changes with migration files
 - API contracts (TypeScript interfaces)
 - Rejection feedback with recommended alternatives
 
 **Hard rules**:
+
 - No component gets database access without Integration Lead approval
 - No direct SQL queries outside defined data access patterns
 - Schema changes require migration files; no direct `ALTER TABLE` in ad-hoc SQL
@@ -107,6 +162,7 @@ The project grew from informal design conversations scattered across multiple ch
 **Inputs**: Component specification, current architecture, Integration Lead contracts, relevant skills from `.claude/skills/`
 
 **Output format**: Implementation plan containing:
+
 - Ordered task list with dependencies
 - Data access requirements (for Integration Lead approval before implementation proceeds)
 - New schema/API needs
@@ -118,6 +174,7 @@ The project grew from informal design conversations scattered across multiple ch
 **Workflow**: Propose data access needs → Integration Lead validates → proceed with implementation plan.
 
 **Component-specific instances**:
+
 - `.claude/agents/senior-developer-component-1.md` — scoped to [component-1-document-intake/specification.md](../components/component-1-document-intake/specification.md)
 - `.claude/agents/senior-developer-component-2.md` — scoped to all [component-2-processing-and-embedding/](../components/component-2-processing-and-embedding/) documents
 
@@ -138,6 +195,7 @@ The project grew from informal design conversations scattered across multiple ch
 **Output format**: Working TypeScript/Node.js code with Vitest tests, following the monorepo patterns from the Component 1 specification.
 
 **Scope constraints**:
+
 - Implements exactly what the plan specifies
 - Does NOT make architectural decisions
 - Does NOT choose different libraries than specified
@@ -162,6 +220,7 @@ The project grew from informal design conversations scattered across multiple ch
 **Inputs**: Code (PR or file set) + original implementation plan + relevant architecture decisions
 
 **Review focus areas**:
+
 - Code quality, maintainability, TypeScript strictness
 - Security by design (at system boundaries: file upload validation, input sanitisation, path traversal prevention, MIME type validation)
 - Proper use of the configuration abstraction layer (no hardcoded providers/paths)
@@ -186,6 +245,7 @@ The project grew from informal design conversations scattered across multiple ch
 **Inputs**: Senior Developer implementation plan
 
 **Output format**: Ordered task list where each task has:
+
 - Clear description of what to do
 - Dependency on prior tasks (if any)
 - Complexity estimate (S/M/L)
@@ -193,30 +253,56 @@ The project grew from informal design conversations scattered across multiple ch
 
 **Scope constraints**: Does not make design decisions. If a task description is ambiguous, flags it for the Senior Developer rather than guessing.
 
+**Definition of done — Project Manager phase**: Complete when a task list exists at `.claude/docs/tasks/component-N-tasks.md` with every task having a clear acceptance condition, and the developer has reviewed the list for completeness.
+
+**Handoff to Implementer / Developer**: Pass the task list. Each task is self-contained — the implementer should be able to pick up any task without reading the full implementation plan.
+
 **Output location**: `.claude/docs/tasks/component-N-tasks.md`
+
+---
+
+### 8. Pair Programmer Agent
+
+**File**: `.claude/agents/pair-programmer.md`
+
+**Responsibility**: Active coding partner during developer-led implementation (Components 2–4). The developer leads; the pair-programmer assists within the scope of the current task.
+
+**When to use**: Any time the developer is implementing a learning component and wants real-time assistance. Replaces the Implementer agent in this context — the developer writes the code, the pair-programmer supports.
+
+**Behaviours**:
+
+- Answers questions about the current implementation task without going off-script
+- Suggests approaches when the developer is stuck, presenting options rather than decisions
+- Reviews code snippets inline as they are written — flags issues before they compound
+- Explains unfamiliar APIs, library patterns, or ML concepts on request
+- Does NOT write whole modules autonomously; assists with specific functions, blocks, or debugging
+- Does NOT override the Senior Developer plan without flagging it explicitly
+
+**Scope constraints**: Operates within the task defined by the Project Manager task list. If the developer's approach diverges from the plan in a meaningful way, flags it and asks whether to update the plan or continue.
+
+**Key context files**: Current component specification, Project Manager task list for the component, `configuration-patterns.md` skill, relevant component-specific skills
+
+**Difference from Implementer**: The Implementer writes code autonomously from a plan. The pair-programmer works alongside the developer interactively, keeping the human in the learning loop at all times.
 
 ---
 
 ## Development Workflows
 
-### Learning Components (Components 2–4)
+### Pre-Implementation (All Components)
 
-Used for the processing pipeline, query, and ingestion components — where the developer is building new skills.
+Run once before any component work begins.
 
 ```
-Senior Developer creates implementation plan
-         ↓
-Integration Lead validates data access contracts
-         ↓
-Project Manager creates task breakdown
-         ↓
-Developer implements (hands-on learning)
-         ↓
-Code Reviewer validates quality & security
-         ↓
-Developer refines
-         ↓
-Done
+Product Owner produces user requirements document
+  ↓ [DoD: requirements doc approved by developer]
+Product Owner produces Phase 1 user stories
+  ↓ [DoD: user stories with acceptance criteria approved by developer]
+Head of Development resolves unresolved architectural questions
+  ↓ [DoD: UQ-001–005 answered, ADRs recorded, architecture doc updated, approved by developer]
+Skills written (configuration-patterns, metadata-schema, pipeline-testing-strategy)
+  ↓ [DoD: each skill file exists and reviewed]
+Integration Lead reviews C1 + C2 specs for data access compliance
+  ↓ [DoD: compliance confirmed or issues raised and resolved]
 ```
 
 ### Non-Learning Components (Component 1)
@@ -225,19 +311,47 @@ Used for the document intake web UI — the developer's existing domain.
 
 ```
 Senior Developer creates implementation plan
-         ↓
+  ↓ [DoD: plan reviewed and approved by developer]
 Integration Lead validates data access contracts
-         ↓
+  ↓ [DoD: contracts approved, no outstanding data access queries]
 Project Manager creates task breakdown
-         ↓
+  ↓ [DoD: every task has an acceptance condition, reviewed by developer]
 Implementer agent writes code + tests
-         ↓
+  ↓ [DoD: all tasks complete, tests passing, no skipped tests]
 Code Reviewer validates quality & security
-         ↓
+  ↓ [DoD: no blocking findings, or all blocking findings resolved]
 Developer reviews, adjusts, merges
-         ↓
+  ↓
 Done
 ```
+
+### Learning Components (Components 2–4)
+
+Used for the processing pipeline, query, and ingestion components — where the developer is building new skills.
+
+```
+Senior Developer creates implementation plan
+  ↓ [DoD: plan reviewed and approved by developer]
+Integration Lead validates data access contracts
+  ↓ [DoD: contracts approved, no outstanding data access queries]
+Project Manager creates task breakdown
+  ↓ [DoD: every task has an acceptance condition, reviewed by developer]
+Developer implements with Pair Programmer support (task by task)
+  ↓ [DoD: all tasks complete, tests passing, developer understands what was built]
+Code Reviewer validates quality & security
+  ↓ [DoD: no blocking findings, or all blocking findings resolved]
+Developer refines
+  ↓
+Done
+```
+
+### Definition of Done — General Principles
+
+A phase is not complete until the developer has explicitly reviewed and approved its output. Agents do not self-certify completion. The following apply to all handoffs:
+
+- Outputs are written to their designated locations (not just described in chat)
+- Any blocking issues are resolved before the next phase begins — they are not carried forward as known debt
+- If a phase raises new questions or scope changes, they are recorded before proceeding (in [decisions/unresolved-questions.md](../decisions/unresolved-questions.md) or as a new requirement)
 
 ---
 
@@ -250,6 +364,7 @@ Done
 **Decision rule**: Ask "Will multiple agents or components need to reference this pattern?" If yes → skill. If specific to one component → belongs in that component's detailed plan.
 
 **Examples of skills** (see [process/skills-catalogue.md](skills-catalogue.md)):
+
 - `configuration-patterns.md` — used by every Senior Developer agent
 - `pipeline-testing-strategy.md` — used by all Senior Developers and the Implementer
 - `embedding-chunking-strategy.md` — used by Component 2 and Component 3 agents
