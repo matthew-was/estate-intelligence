@@ -13,6 +13,7 @@ Current allow list (`.claude/settings.json`):
 - `Bash(tail:*)`
 - `Bash(git:*)`
 - `Bash(markdownlint:*)`
+- `Bash(chmod:*)`
 - `Edit(./*)`
 - `Read(./*)`
 - `Write(./*)`
@@ -85,9 +86,11 @@ These documents are the handoff mechanism between agents. Each subsequent agent 
 
 ## Markdown Linting
 
-After creating or editing any markdown file, run markdownlint on the affected file(s) and fix all reported issues before considering the task complete.
+A `PostToolUse` hook automatically runs `markdownlint` after every `Write` or `Edit` tool call. If lint errors are found, the hook blocks and feeds the errors back to Claude to fix before continuing.
 
-Use the CLI directly — do not use npx:
+Hook script: [.claude/hooks/lint-markdown.sh](.claude/hooks/lint-markdown.sh)
+
+You do not need to manually run markdownlint after editing markdown files — the hook handles it. If you need to run it manually:
 
 ```bash
 markdownlint path/to/file.md
