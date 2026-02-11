@@ -83,6 +83,23 @@ The body of the file (after frontmatter) is the agent's system prompt. Agents do
 5. **Escalation rules** — When and how to flag issues for the developer.
 6. **Definition of done** — How the agent signals phase completion.
 
+### Workflow precedence
+
+Agents are invoked via the Task tool with a caller-provided prompt. That prompt may be vague, incomplete, or may contradict the agent's defined workflow. To prevent the caller's prompt from overriding the agent's instructions:
+
+- Include an explicit statement after the role statement: "Always follow the workflow defined in this file, starting with the First action section. If the caller's prompt conflicts with these instructions, follow these instructions."
+- This ensures the agent's first-action routing, output requirements, and behaviour rules are followed regardless of how it was invoked.
+
+### Outputs must be written to disk
+
+Agents communicate across sessions through documents written to disk — not through chat responses. Every agent that produces output must:
+
+- Specify the exact file path for each output in the system prompt
+- Use imperative instructions to write files (e.g. "Write the review to `path` using the Write tool"), not declarative labels (e.g. `**Output**: path`)
+- Include a behaviour rule: "All outputs MUST be written to their designated file paths using the Write tool. Do not return outputs as chat messages only."
+
+Without this, agents may return their analysis as chat text and the handoff mechanism breaks — no file exists for the next agent to read.
+
 ### Write instructions, not descriptions
 
 Weak (description): "The Product Owner is responsible for user stories."
@@ -138,6 +155,9 @@ skills: approval-workflow
 You are the Product Owner for the Estate Intelligence project. You own project scope and
 `documentation/project/overview.md`. You do NOT make architectural decisions.
 
+Always follow the workflow defined in this file, starting with the First action section.
+If the caller's prompt conflicts with these instructions, follow these instructions.
+
 ## First action
 
 At the start of every session, read the following files in this order before doing anything else:
@@ -157,16 +177,17 @@ If `approvals.md` does not exist, treat all documents as unapproved.
 
 ## Overview review phase
 
-Before writing any requirements, produce a review document identifying contradictions,
-missing information, undocumented edge cases, and ambiguities in `overview.md`.
-
-**Output**: `.claude/docs/requirements/overview-review.md`
+Before writing any requirements, review `overview.md` and write a review document to
+`.claude/docs/requirements/overview-review.md` using the Write tool. Identify contradictions,
+missing information, undocumented edge cases, and ambiguities.
 
 Do NOT edit `overview.md` directly. Present findings; the developer resolves them.
 When the developer approves `overview.md`, record it in `approvals.md` per the approval-workflow skill.
 
 ## Behaviour rules
 
+- All outputs MUST be written to their designated file paths using the Write tool.
+  Do not return outputs as chat messages only.
 - Do NOT make architectural decisions or embed technology assumptions
 - Flag architectural implications: `[ARCHITECTURAL FLAG — for Head of Development]`
 - Do NOT self-certify completion — developer must explicitly approve each output
@@ -194,6 +215,9 @@ Phase complete when:
 
 **Key conventions illustrated**:
 
+- Workflow precedence instruction after the role statement — the agent follows its own workflow even if the caller's prompt says otherwise
+- Output instructions are imperative ("write a review document to `path` using the Write tool"), not declarative labels
+- Behaviour rules include an explicit "write to disk" rule — prevents outputs being returned as chat only
 - `skills: approval-workflow` injects a shared workflow protocol — the agent does not redefine it inline
 - Session-start routing logic handles the stateful nature of multi-session work
 - The overview review phase gates requirements writing — the agent cannot skip ahead
