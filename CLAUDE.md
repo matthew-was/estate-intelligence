@@ -12,6 +12,7 @@ Current allow list (`.claude/settings.json`):
 - `Bash(ls:*)`
 - `Bash(tail:*)`
 - `Bash(git:*)`
+- `Bash(markdownlint:*)`
 - `Edit(./*)`
 - `Read(./*)`
 - `Write(./*)`
@@ -79,3 +80,17 @@ As agents complete their phases, outputs are written here:
 ```
 
 These documents are the handoff mechanism between agents. Each subsequent agent reads from the relevant output documents of prior phases. When starting a new agent session, pass the appropriate documents as context — see [documentation/process/agent-workflow.md](documentation/process/agent-workflow.md) for the per-agent context table.
+
+---
+
+## Markdown Linting
+
+After creating or editing any markdown file, run markdownlint on the affected file(s) and fix all reported issues before considering the task complete.
+
+Use the CLI directly — do not use npx:
+
+```bash
+markdownlint path/to/file.md
+```
+
+`markdownlint` is installed at `/opt/homebrew/bin/markdownlint` (Homebrew global install).

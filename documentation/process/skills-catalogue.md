@@ -16,7 +16,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 
 **File**: `.claude/skills/agent-file-conventions.md`
 
-**Status**: Not yet written — write before any agent files are created (prerequisite for all agents)
+**Status**: Written
 
 **Purpose**: Defines what a well-formed `.claude/agents/*.md` file looks like for this project. Without this, each agent file risks being inconsistent — missing scope constraints, ignoring context loading, or producing an agent that drifts off-role.
 
@@ -35,6 +35,31 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Used by**: Every agent file creation task; Code Reviewer when auditing agent quality
 
 **Why this is a skill and not an agent**: It is a one-time reference document consulted during agent file authoring, not an ongoing role. Once all agent files are created, it remains useful for adding new agents or revising existing ones.
+
+---
+
+### 0a. Approval Workflow
+
+**File**: `.claude/skills/approval-workflow.md`
+
+**Status**: Written
+
+**Purpose**: Defines how agents record, check, and revoke document approvals. Ensures consistent approval behaviour across all agents — no agent may interpret these rules differently.
+
+**Covers**:
+
+- The purpose of approvals: documents are not acted on until explicitly approved; approvals create an auditable record
+- The `approvals.md` format: status table (Document | Current Status | Last Updated) + append-only audit log
+- Audit log entry format: `YYYY/MM/DD HH:MM - [document] [action] - [requestor] - [reason]`
+- How to record an approval and an unapproval (update status table + append audit log entry; never delete rows)
+- Document dependency order: `overview.md` → `user-requirements.md` → `phase-1-user-stories.md`
+- Re-approval trigger rules: any agent that challenges an approved document notifies the Product Owner; the Product Owner owns the cascade
+- Downstream impact rule: unapproving a document also unapprovals all documents downstream of it
+- What agents must NOT do: proceed past unapproved dependencies; self-approve; silently bypass the workflow
+
+**Used by**: Product Owner agent; any future agent that gates on document approval status (e.g. Head of Development before consuming requirements, Senior Developer before consuming architecture decisions)
+
+**Why this is a skill and not an agent**: It is a workflow protocol, not a role. Multiple agents follow it; no agent owns it.
 
 ---
 
@@ -188,12 +213,13 @@ If during implementation a pattern is identified that will be needed by multiple
 
 ## Creation Order
 
-Write skills in this order — each skill is a dependency for work that comes after it:
+Write skills in this order — each is a dependency for work that comes after it:
 
-1. **agent-file-conventions.md** — write before any agent files are created (prerequisite for all agents)
-2. **configuration-patterns.md** — blocks all Senior Developer agents
-3. **metadata-schema.md** — blocks Integration Lead validation of any component
-4. **pipeline-testing-strategy.md** — must exist before code is written
-5. **ocr-extraction-workflow.md** — needed before Component 2 implementation
-6. **embedding-chunking-strategy.md** — needed before Component 2 embedding stage + Component 3
-7. **rag-implementation.md** — needed before Component 3 design
+1. **agent-file-conventions.md** — ✓ written; prerequisite for all agent files
+2. **approval-workflow.md** — ✓ written; used by Product Owner and any agent that gates on approvals
+3. **configuration-patterns.md** — blocks all Senior Developer agents
+4. **metadata-schema.md** — blocks Integration Lead validation of any component
+5. **pipeline-testing-strategy.md** — must exist before code is written
+6. **ocr-extraction-workflow.md** — needed before Component 2 implementation
+7. **embedding-chunking-strategy.md** — needed before Component 2 embedding stage + Component 3
+8. **rag-implementation.md** — needed before Component 3 design
