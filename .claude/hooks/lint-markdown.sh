@@ -11,6 +11,9 @@ FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
 # Skip files that don't exist (e.g. deletions)
 [[ ! -f "$FILE_PATH" ]] && exit 0
 
+# Skip files outside the project directory (e.g. plan files in ~/.claude/plans/)
+[[ "$FILE_PATH" != "$CLAUDE_PROJECT_DIR"/* ]] && exit 0
+
 if ! OUTPUT=$(markdownlint "$FILE_PATH" 2>&1); then
   echo "markdownlint failed for $FILE_PATH — fix these errors:" >&2
   echo "$OUTPUT" >&2

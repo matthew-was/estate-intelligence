@@ -8,7 +8,9 @@ All design and process documentation for the Estate Intelligence project. Start 
 
 ### If you want to understand the project
 
-→ [project/overview.md](project/overview.md) — Goals, use cases, principles, developer background
+→ [project/overview.md](project/overview.md) — Scope document: users, document types, capabilities by phase, query scope
+
+→ [project/developer-context.md](project/developer-context.md) — Developer background and environment setup
 
 → [project/architecture.md](project/architecture.md) — All 4 components, phases, tech stack, data flow
 
@@ -40,7 +42,7 @@ All design and process documentation for the Estate Intelligence project. Start 
 
 → [SUMMARY.md](SUMMARY.md) — What was done + step-by-step guide to set up `.claude/` directory
 
-→ [process/agent-workflow.md](process/agent-workflow.md) — 7-agent role definitions and workflows
+→ [process/agent-workflow.md](process/agent-workflow.md) — 8-agent role definitions and workflows
 
 → [process/skills-catalogue.md](process/skills-catalogue.md) — All identified skills with creation order
 
@@ -60,7 +62,8 @@ All design and process documentation for the Estate Intelligence project. Start 
 
 | Document | Status | Notes |
 | --- | --- | --- |
-| project/overview.md | Current | Incorporates INITIAL_PURPOSE.md |
+| project/overview.md | Current | Rewritten as scope document |
+| project/developer-context.md | Current | Developer background and environment |
 | project/architecture.md | Current | 4-component structure |
 | project/pipeline-diagram.mermaid | Current | Updated for 4 components |
 | project/domain-context.md | Living document | Populate as documents are processed |
@@ -73,7 +76,7 @@ All design and process documentation for the Estate Intelligence project. Start 
 | components/component-2-processing-and-embedding/quick-reference.md | Current | |
 | components/component-3-query-retrieval/README.md | Placeholder | Design pending after C1+C2 complete |
 | components/component-4-continuous-ingestion/README.md | Placeholder | Design pending last |
-| process/agent-workflow.md | Current | 7 agents defined |
+| process/agent-workflow.md | Current | 8 agents defined |
 | process/skills-catalogue.md | Current | 6 skills identified, none written yet |
 | process/development-principles.md | Current | |
 | decisions/architecture-decisions.md | Current | All ADRs from design phase |

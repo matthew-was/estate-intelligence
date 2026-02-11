@@ -2,135 +2,121 @@
 
 ## Why This Project Exists
 
-This project has two equally important goals:
+The Estate Intelligence system exists to preserve and make accessible the recorded history of a family farming estate spanning from the 1950s to the present. Decades of land transactions, infrastructure works, tenancy agreements, legal correspondence, and family history exist only as physical and digital documents — scattered, unsearchable, and at risk of being lost as knowledge passes between generations.
 
-1. **Preserve family history**: Archive and make searchable the historic documents from a family farming estate — spanning from the 1950s to the present. These documents record land ownership, infrastructure decisions, farming operations, and family history. Without a systematic archive, this knowledge is at risk of being lost.
+The system creates a searchable archive of these documents. A user asks a question in plain language — "what is known about the drainage works in the east meadow?" or "who owned the mill pasture before the family acquired it?" — and the system reads the relevant documents and answers directly, citing its sources.
 
-2. **Learn AI engineering**: Use this real project as a hands-on vehicle for learning AI/ML workflows, document processing pipelines, and modern AI tooling. The developer has strong existing skills in web development but wants to build practical expertise in AI as a professional skill.
-
-Both goals are first-class. Design decisions deliberately choose approaches that maximise learning and understanding over black-box convenience.
+This project also serves as a deliberate learning vehicle. The developer is using a real, meaningful problem to build practical expertise in AI and document processing. Design decisions throughout favour understanding over convenience.
 
 ---
 
-## Document Scope
+## Who the System Is For
 
-**Time range**: 1950s to present
+| User | Phase | Description |
+| --- | --- | --- |
+| Primary Archivist | 1 | Builds and maintains the archive; full access including system administration |
+| Family Member | 2 | Full archival and curation access; no system administration or document deletion |
+| Occasional Contributor | 3 | Submits documents and queries the archive; no post-submission control |
+| System Administrator | 3 | Manages infrastructure and user accounts; separated from the Archivist role |
 
-**Initial scale**: Hundreds of documents (learning phase)
-
-**Target scale**: Tens of thousands of documents
-
-**Document types**:
-
-- Handwritten letters (scanned to image)
-- Typewritten documents (scanned to image or PDF)
-- Modern emails and digital PDFs
-- Physical documents requiring scanning before digitisation
+The system is private at all phases. There is no public access and no self-registration.
 
 ---
 
-## Key Use Cases
+## What Documents the System Handles
 
-The system is designed to answer questions about the estate's history. Primary query types:
+| Document Type | Phase |
+| --- | --- |
+| Typewritten and printed documents (scanned) | 1 |
+| Modern digital PDFs, correspondence, financial documents | 1 |
+| Handwritten letters and notes | 2 |
+| Maps, plans, and surveys | 2 |
+| Emails (raw format) | 2 |
+| Standalone photographs | 4+ |
 
-- **Land ownership**: "What is known about ownership of the north field?"
-- **Infrastructure history**: "Where were pipes laid through the east meadow, and when?"
-- **Decision summaries**: "What decisions were made about the purchase or sale of certain plots?"
+Audio, video, structured data files, and web content are out of scope. Physical documents must be digitised before submission — scanning is not a system responsibility.
+
+---
+
+## What the System Must Do
+
+### Phase 1 — Prove the Pipeline
+
+A complete end-to-end pipeline running locally, used by one person. Document upload via minimal web UI; query and curation via command line.
+
+**Must have**:
+
+- Accept document uploads via web UI; bulk ingestion from a directory via CLI
+- Detect and reject exact duplicates
+- Extract text from typed and printed documents with quality scoring
+- Flag poor-quality extractions for human review
+- Detect document type, dates, people, and land references automatically
+- Generate AI-agent-defined embeddings for each document chunk
+- Maintain a domain vocabulary of estate-specific terms; flag new candidates from documents
+- Answer natural language questions with synthesised responses and source citations (CLI)
+- Basic curation via CLI: mark reviewed, flag issues, correct metadata, view and resubmit processing queue
+- Provider-agnostic configuration throughout
+
+**Out of scope for Phase 1**: web UI for query, curation, or administration; user authentication; supplementary context; browsing documents; viewing originals in results; replace or delete documents; multi-user access.
+
+### Phase 2 — Expand and Share
+
+Harder document types, full web interface, first external user.
+
+**Adds**:
+
+- Web UI for all functions (upload, query, curation)
+- User authentication
+- Supplementary context — attach human notes to documents the system cannot interpret automatically
+- Reprocess documents after human correction
+- Return original documents alongside query answers
+- Browse documents directly
+- Family Member access
+
+### Phase 3 — Open to Others
+
+Hosted infrastructure, external user access, access controls.
+
+**Adds**:
+
+- User account management
+- Replace or delete documents
+- Occasional Contributor access (submit and query)
+- Document visibility scoping by user type
+- Filter and facet search
+- System Administrator role (separated from Primary Archivist)
+
+### Phase 4 and Beyond
+
+Deferred without a committed phase: standalone photographs, near-duplicate detection, knowledge graph, cross-document contradiction detection.
+
+---
+
+## What Questions the System Answers
+
+The system is designed to answer questions about the estate's recorded history:
+
+- **Land and ownership**: "What is known about ownership of the north field?"
+- **Infrastructure and works**: "Where were pipes laid through the east meadow, and when?"
+- **Rights and agreements**: "Is there any record of a right of way agreement with the neighbouring landowner?"
 - **People and relationships**: "Who was involved in the sale of the mill pasture?"
+- **Decisions**: "What decisions were made about the purchase or sale of certain plots?"
+- **Time period**: "What was happening with the estate in the 1960s?"
 
-These use cases drive metadata and retrieval design — dates, land references, people, and document relationships are first-class metadata requirements.
+The system surfaces what documents say. It does not give legal advice or interpretation. Answers always include citations so users can verify against the originals. If no relevant documents exist, the system says so.
 
----
-
-## Architectural Principles
-
-### Infrastructure as Configuration
-
-The single most important architectural principle in this project. Every external service must be accessed through an abstraction interface. The concrete implementation is selected at runtime via configuration, not hardcoded in application logic.
-
-**What this means in practice**:
-
-```text
-Application code: storageService.store(file)   ← never changes
-Configuration:    STORAGE_BACKEND=local         ← changes per environment
-Runtime:          LocalFilesystemAdapter loads  ← determined by config
-```
-
-**Key abstraction points**:
-
-| Service | Phase 1 Default | Phase 2+ Option |
-| ------- | --------------- | --------------- |
-| Document storage | Local filesystem | AWS S3 |
-| Database | Local PostgreSQL (Docker) | AWS RDS |
-| OCR engine | Docling (+ Tesseract fallback) | Alternative OCR services |
-| LLM provider | Claude API | GPT, local models |
-| Embedding service | OpenAI/Anthropic | Local embedding models |
-| Vector DB | pgvector (PostgreSQL) | Dedicated vector DB |
-| Compute | Docker local | AWS EC2/ECS |
-
-**Implementation approach**: TypeScript interfaces + factory/DI patterns (backend); Python abstract base classes + factory functions (processing pipeline). See [process/development-principles.md](../process/development-principles.md) and the `configuration-patterns.md` skill for implementation guidance.
+The practical quality of answers is directly proportional to the breadth and quality of documents in the archive.
 
 ---
 
-## Design Principles
+## What the System Does Not Do
 
-1. **Start small and complete**: Build a complete end-to-end pipeline with the simplest cases first. A working system with limited scope beats a partial system with broad scope.
-
-2. **Infrastructure as code from day one**: All infrastructure choices configurable from day one, not retrofitted later.
-
-3. **Incremental expansion**: Add complexity component by component, phase by phase.
-
-4. **Real-world testing**: Use actual family documents during development, not toy datasets. Assumptions only get validated on real data.
-
-5. **Maintainability**: Design for ongoing document addition and for infrastructure changes over time.
-
-6. **Learning-focused**: Understand each step deeply. Components 2–4 are learning components — the developer implements them personally rather than using an Implementer agent.
-
-7. **Migration-ready**: Apply patterns from day one that will work on AWS without code rewrites.
-
-8. **Type safety end-to-end**: TypeScript strict mode in all TypeScript packages. Zod validation at all external boundaries.
-
-9. **Test early**: Tests written alongside code, not deferred. Real PostgreSQL for integration tests, not mocks.
-
-10. **Document during build**: Documentation written as decisions are made, not after.
-
----
-
-## Developer Background
-
-**Strong existing skills**:
-
-- 9+ years full-stack JavaScript/TypeScript
-- Docker and Linux environments
-- PostgreSQL (extensive experience)
-- AWS: EC2, ECS, S3, some OpenSearch
-
-**Skills being developed through this project**:
-
-- Python (OCR and AI/ML components)
-- Document processing pipelines
-- Vector embeddings and pgvector
-- RAG (Retrieval Augmented Generation)
-- AI/ML workflow tooling
-
----
-
-## Development Environments
-
-**Local development (Phase 1–2)**:
-
-- Docker Compose orchestrates all local services (PostgreSQL + pgvector, application containers)
-- Configuration points to local services by default
-- No cloud dependencies required for development
-
-**Production (Phase 3+)**:
-
-- Same application code and Docker containers
-- Configuration points to AWS RDS, S3, and API endpoints
-- Docker runs on EC2 or migrates to ECS
-- No code rewrites required — only configuration changes
-
-This seamless transition is guaranteed by the Infrastructure as Configuration principle.
+- Provide public or anonymous access
+- Allow self-registration
+- Give legal advice or interpret legal documents
+- Answer questions about land or property outside the estate
+- Process audio, video, structured data files, or web content
+- Handle document scanning — digitisation is a precondition to submission
 
 ---
 
@@ -138,9 +124,10 @@ This seamless transition is guaranteed by the Infrastructure as Configuration pr
 
 | If you want to... | Go to... |
 | --- | --- |
-| Understand the full system architecture | [project/architecture.md](architecture.md) |
+| Understand the system architecture and technology choices | [project/architecture.md](architecture.md) |
+| Understand the developer background and environment setup | [project/developer-context.md](developer-context.md) |
 | See the pipeline visually | [project/pipeline-diagram.mermaid](pipeline-diagram.mermaid) |
 | Understand a specific component | [components/](../components/) |
 | Understand why decisions were made | [decisions/architecture-decisions.md](../decisions/architecture-decisions.md) |
 | See what questions are still open | [decisions/unresolved-questions.md](../decisions/unresolved-questions.md) |
-| Set up agents and skills | [documentation/SUMMARY.md](../SUMMARY.md) |
+| Set up agents and skills | [SUMMARY.md](../SUMMARY.md) |
