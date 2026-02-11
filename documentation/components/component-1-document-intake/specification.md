@@ -22,7 +22,7 @@
 
 ### Monorepo Structure
 
-```
+```text
 estate-archive/
 ├── packages/
 │   ├── shared/          # @estate-archive/shared - Types & validation
@@ -73,6 +73,7 @@ estate-archive/
 ## Document Upload Flow (Three Steps)
 
 ### Step 1: Initiate Upload (Metadata Only)
+
 **Frontend → Next.js API → Backend tRPC**
 
 - Client sends: `{ filename, fileSize, contentType }`
@@ -83,6 +84,7 @@ estate-archive/
 **Database State**: Record exists, no file stored yet
 
 ### Step 2: Upload File (Binary Transfer)
+
 **Frontend → Next.js API (temp storage) → Backend REST**
 
 - Client sends file as multipart/form-data with `documentId`
@@ -96,6 +98,7 @@ estate-archive/
 **Database State**: Record has file reference, file exists in storage
 
 ### Step 3: Finalize Upload (Hash & Metadata)
+
 **Frontend → Next.js API → Backend tRPC**
 
 - Client calculates MD5 hash (2MB chunks, spark-md5)
@@ -108,6 +111,7 @@ estate-archive/
 **Database State**: Record complete with hash and metadata, or marked as failed duplicate
 
 ### Error Handling Philosophy
+
 **Aggressive Immediate Cleanup**: Any failure at any step triggers deletion of uploaded file (if exists), marking/deletion of database record, and cleanup of temp files. No orphaned state accumulates.
 
 **Acceptable for Phase 1**: Single user, small files, fast network. Phase 2 will improve handling for slower uploads and larger files.
@@ -192,6 +196,7 @@ estate-archive/
 ## Storage Architecture
 
 ### Phase 1: Local Filesystem
+
 **Directory Structure**: `/storage/uploads/YYYY/MM/uuid.ext`
 
 - `YYYY`: Four-digit year
@@ -218,6 +223,7 @@ type StorageReference = {
 ```
 
 ### Future S3 Migration
+
 **No code changes required** - only:
 
 1. Implement `S3StorageService` class (same interface)
@@ -260,6 +266,7 @@ type StorageReference = {
 - **Filename**: Path traversal prevention, special char handling, length limit
 
 ### Error Response Format
+
 Standard HTTP status + JSON body:
 
 - `400`: Validation errors
@@ -285,6 +292,7 @@ Example: `{ error: 'File already exists', existingDocumentId: 'uuid' }`
 - **Frontend tests**: Colocated with source files
 
 ### Test Scope (Phase 1)
+
 **Integration tests within package boundaries only**. No E2E across frontend/backend.
 
 **Backend Coverage**:
@@ -316,6 +324,7 @@ Example: `{ error: 'File already exists', existingDocumentId: 'uuid' }`
 - Cleanup: Truncate tables + reset sequences after each test
 
 ### Test Fixtures
+
 Small test files in `__tests__/fixtures/`:
 
 - Sample PDFs (~50KB)
@@ -324,6 +333,7 @@ Small test files in `__tests__/fixtures/`:
 - Total: ~200KB (acceptable for git)
 
 ### Coverage Philosophy
+
 **No percentage targets**. Focus on:
 
 - Critical paths where bugs cause most damage
@@ -415,6 +425,7 @@ docker-compose up -d    # Migrations auto-run
 - Prettier defaults (can modify during development)
 
 ### Validation Script
+
 `pnpm run validate` runs:
 
 1. `tsc --noEmit` (type-check)
@@ -485,6 +496,7 @@ Complementary: `pnpm run format` auto-fixes formatting
 - Backups: Original documents kept separately (this system is the archive copy)
 
 ### Production (Phase 2+)
+
 **Target Platform**: AWS EC2 (primary), ECS (where compatible)
 
 **Database Options**:
@@ -526,6 +538,7 @@ Complementary: `pnpm run format` auto-fixes formatting
 - Docker Compose development environment
 
 ### Features Explicitly NOT Included
+
 Authentication/authorization, multi-user support, document listing/browsing UI, search interface, document preview, **batch upload of multiple files simultaneously** (see Multi-File Upload Strategy below), progress bars, drag-and-drop, resume uploads, advanced retry logic, rate limiting, versioning, audit logs, email notifications, webhooks, GraphQL, mobile app, public API, analytics, sharing/permissions, comments/annotations, workflows, external integrations.
 
 ### Multi-File Upload Strategy
@@ -552,6 +565,7 @@ Authentication/authorization, multi-user support, document listing/browsing UI, 
 **Design Rationale**: Defer complex batch semantics until actual usage patterns are understood. Sequential upload is acceptable for Phase 1 learning goals (uploading 10-50 documents to test the pipeline). If bulk import becomes painful during development, frontend-only parallelism provides 3x speedup without architectural changes.
 
 ### Exit Criteria
+
 Phase 1 complete when:
 
 - Upload flow works reliably end-to-end
@@ -689,6 +703,7 @@ Phase 1 complete when:
 - Future enhancement: Associate permissions/roles with keys
 
 ### Key Rotation
+
 **Simple approach for Phase 1**:
 
 1. Add new key to backend `apiKeys` array
@@ -700,6 +715,7 @@ Phase 1 complete when:
 **No downtime required** if backend supports multiple valid keys during transition.
 
 ### Header Name
+
 Implementation decision during development (options: `Authorization`, `X-API-Key`, `X-Estate-Archive-Key`). Backend validates presence and matches against configured keys.
 
 ---

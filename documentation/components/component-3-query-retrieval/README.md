@@ -9,6 +9,7 @@
 Component 3 is the interface between the processed document archive and the developer (or future users). It accepts natural language queries, searches the vector store, assembles context, and generates answers via a configured LLM.
 
 **What it owns**:
+
 - Query embedding (same abstraction layer as document embedding)
 - Vector similarity search against pgvector
 - Parent document retrieval for extended RAG context
@@ -71,6 +72,7 @@ These questions were identified during Component 2 design and must be answered d
 ## Known Configuration Points
 
 Following the infrastructure-as-configuration principle:
+
 - Embedding service (same provider used for document embedding; must match)
 - LLM provider (Claude, GPT, local model) — abstraction enables switching
 - Number of chunks to retrieve (top-N, configurable)

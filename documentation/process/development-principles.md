@@ -13,12 +13,14 @@ Every external service must be accessed through an abstraction interface. The co
 **What this means in practice**:
 
 Application code calls an interface:
+
 ```typescript
 storageService.store(fileBuffer, metadata)
 ```
 
 Configuration determines the implementation:
-```
+
+```text
 STORAGE_BACKEND=local   → LocalFilesystemAdapter loads
 STORAGE_BACKEND=s3      → S3Adapter loads
 ```
@@ -38,6 +40,7 @@ The application code never changes between environments. Only the configuration 
 | Compute | Docker configuration | Docker Compose local | AWS ECS |
 
 **Implementation approach**:
+
 - TypeScript: well-defined interfaces + factory pattern or dependency injection
 - Python: abstract base classes + factory functions
 - Runtime selection via environment variables or config files
@@ -100,6 +103,7 @@ The project will be paused and resumed many times. Clear documentation, defined 
 ### Human-in-the-Loop
 
 Agents analyse, synthesise, and present options. The developer makes decisions. This applies to:
+
 - Domain context (Component 2 flags candidates; developer approves)
 - Architecture (Head of Development agent presents options; developer decides)
 - Code quality (Code Reviewer flags issues; developer resolves)

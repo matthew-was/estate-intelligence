@@ -11,6 +11,7 @@ The `initial documentation/` directory contained high-quality, well-considered d
 All external documents that were used as source material during documentation reorganisation have been moved to the `archive/` directory. This convention applies going forward: any external document (conversations, briefings, exported content from other tools) that is read and processed into part of the `documentation/` directory should be moved to `archive/` after processing, for future reference. The `documentation/` directory is the single source of truth; `archive/` is the provenance record.
 
 Key findings:
+
 - Components 1 and 2 are fully specified and ready for Phase 1 implementation
 - The agent workflow design (in `working-with-claude.md`) was complete but had no `.claude/` directory to make it operational
 - A combined C2+C3 overview document signalled that the original 5-component design had evolved to 4 components
@@ -43,6 +44,7 @@ During this reorganisation, the decision was made to merge the original Componen
 | `INITIAL_PURPOSE.md` | Incorporated into `project/overview.md` | Merged |
 
 New files synthesised:
+
 - `documentation/README.md` — navigation index
 - `project/domain-context.md` — living estate terminology document
 - `components/component-1-document-intake/quick-reference.md` — synthesised from C1 spec
@@ -146,6 +148,7 @@ For each agent, the file should contain: role definition, inputs, output format,
 **Output format**: Approved schema changes + migration files, API contracts (TypeScript interfaces), rejections with recommended alternatives
 
 **Specific responsibilities**:
+
 - Manage schema evolution and migrations
 - Define API interfaces that all components depend on
 - Validate component data access patterns (no ad-hoc queries)
@@ -153,6 +156,7 @@ For each agent, the file should contain: role definition, inputs, output format,
 - Manage backward compatibility
 
 **Hard rules**:
+
 - No component gets database access without Integration Lead approval
 - No direct SQL queries outside defined access patterns
 
@@ -175,6 +179,7 @@ For each agent, the file should contain: role definition, inputs, output format,
 **Escalation**: If component has 5+ subsystems or 3–4 months of work, escalate to Team Lead structure
 
 Component-specific instances:
+
 - `senior-developer-component-1.md` — context: [components/component-1-document-intake/specification.md](components/component-1-document-intake/specification.md), `.claude/docs/requirements/user-requirements.md`, `.claude/docs/requirements/phase-1-user-stories.md`, [decisions/architecture-decisions.md](decisions/architecture-decisions.md)
 - `senior-developer-component-2.md` — context: all files in [components/component-2-processing-and-embedding/](components/component-2-processing-and-embedding/), `.claude/docs/requirements/user-requirements.md`, [decisions/architecture-decisions.md](decisions/architecture-decisions.md)
 
@@ -189,6 +194,7 @@ Component-specific instances:
 **Output**: Working TypeScript/Node.js code + Vitest tests
 
 **Hard constraints**:
+
 - Implements exactly what the plan specifies
 - Does NOT make architectural decisions
 - Does NOT skip tests
@@ -209,6 +215,7 @@ Component-specific instances:
 **Output**: Review comments with severity (blocking/suggestion), security findings, pattern observations
 
 **Review focus**:
+
 - Code quality, maintainability, TypeScript strictness
 - Security at system boundaries (file upload validation, input sanitisation, path traversal, MIME types)
 - Proper use of configuration abstraction layer (no hardcoded providers)
@@ -332,8 +339,8 @@ Full details in [decisions/unresolved-questions.md](decisions/unresolved-questio
 
 **Must answer before Component 2 implementation**:
 
-6. **UQ-C2-001 Semantic chunking heuristics** — Exact rules per document type
-7. **UQ-C2-002 Category detection patterns** — Pattern list per category
+1. **UQ-C2-001 Semantic chunking heuristics** — Exact rules per document type
+2. **UQ-C2-002 Category detection patterns** — Pattern list per category
 
 ---
 

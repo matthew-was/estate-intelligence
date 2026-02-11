@@ -9,6 +9,7 @@
 Component 4 monitors for new documents and automatically triggers the full processing pipeline (Components 1–3) without manual intervention. It handles the operational side of keeping the archive up to date as new documents arrive.
 
 **What it owns**:
+
 - New document detection (watch folder and/or API endpoint)
 - Processing queue management
 - Pipeline trigger (Component 1 intake → Component 2 processing → Component 3 embedding)
@@ -20,6 +21,7 @@ Component 4 monitors for new documents and automatically triggers the full proce
 ## Known Requirements
 
 ### Phase 1 (Manual Pipeline)
+
 Phase 1 has no automated ingestion — documents are uploaded manually through the Component 1 web interface. Component 4 is a Phase 2+ concern.
 
 ### Phase 2: Basic Automation

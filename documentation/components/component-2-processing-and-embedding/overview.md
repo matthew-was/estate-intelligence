@@ -26,7 +26,7 @@ This component has two internal stages designed together as a unified pipeline:
 
 ## Data Flow
 
-```
+```text
 Documents (uploaded, deduplicated by Component 1)
          ↓
     Stage A: Text Extraction & Document Processing
@@ -107,6 +107,7 @@ Documents (uploaded, deduplicated by Component 1)
 ### Phase 1: Core Pipeline (MVP)
 
 **Stage A**:
+
 - PDF type detection (born-digital vs scanned)
 - Text extraction (PDF extraction for born-digital, Docling/Tesseract for scanned/images)
 - Quality scoring (OCR confidence + text coherence)
@@ -117,6 +118,7 @@ Documents (uploaded, deduplicated by Component 1)
 - Domain context candidate collection (no flagging yet)
 
 **Stage B**:
+
 - Vector embedding generation (configurable service)
 - pgvector storage of embeddings + metadata + parent references
 - Basic similarity search
@@ -126,6 +128,7 @@ Documents (uploaded, deduplicated by Component 1)
 ### Phase 2: Enhanced Intelligence
 
 **Stage A**:
+
 - Domain context flagging and reprocessing workflow
 - Semantic chunking refinement (ML-based topic detection)
 - LLM-assisted category validation and entity extraction
@@ -133,18 +136,21 @@ Documents (uploaded, deduplicated by Component 1)
 - Email parsing and threading preparation
 
 **Stage B**:
+
 - Enhanced retrieval with chunk metadata
 - Quality-score-aware ranking
 
 ### Phase 3: Production Features
 
 **Stage A**:
+
 - Email chain parsing and individual message extraction
 - Advanced deduplication (embedding similarity)
 - Entity relationship extraction
 - Knowledge graph building
 
 **Stage B**:
+
 - Graph-aware retrieval
 - Knowledge graph storage and traversal
 
@@ -158,6 +164,7 @@ Documents (uploaded, deduplicated by Component 1)
 ## Configuration Points
 
 **Stage A**:
+
 - OCR engine (Docling default, Tesseract fallback)
 - Chunking strategy per document type
 - Quality score weighting
@@ -166,6 +173,7 @@ Documents (uploaded, deduplicated by Component 1)
 - Entity extraction patterns
 
 **Stage B**:
+
 - Embedding service (OpenAI/Anthropic/local)
 - Vector dimension handling
 - Storage backend (PostgreSQL with pgvector)
@@ -174,6 +182,7 @@ Documents (uploaded, deduplicated by Component 1)
 ## Success Criteria
 
 **Phase 1 Complete**:
+
 - Text extracted and readable for 95%+ of documents
 - Quality scores reflect real extraction quality (validated against manual assessment)
 - Chunks are semantically coherent (related content stays together)
@@ -182,11 +191,13 @@ Documents (uploaded, deduplicated by Component 1)
 - Domain context candidates collected and reviewable
 
 **Phase 2 Complete**:
+
 - Domain context flagging working (developer approves >80% of suggestions)
 - Reprocessing improves document metadata and categorisation
 - LLM-assisted classification measurably more accurate
 
 **Phase 3+ Complete**:
+
 - Email parsing functional
 - Entity relationships detected
 - Knowledge graph queryable
@@ -205,12 +216,14 @@ Documents (uploaded, deduplicated by Component 1)
 ## Dependencies & Assumptions
 
 **About Documents**:
+
 - Mostly typewritten (not handwritten) — OCR viable
 - Date/date-range discoverable — user can provide
 - Broad categories apply — user can classify initially
 - Naming conventions exist — domain context learning will help
 
 **About Infrastructure**:
+
 - PostgreSQL available with pgvector extension
 - S3 or local filesystem for storage
 - Python environment for Stage A
@@ -219,22 +232,26 @@ Documents (uploaded, deduplicated by Component 1)
 ## Integration Points
 
 **Component 2 ← Component 1 (Intake)**:
+
 - Documents stored in S3/filesystem
 - File metadata in database
 - Deduplication already applied
 
 **Stage A → Stage B (Internal)**:
+
 - Chunks with parent references
 - Quality scores per chunk
 - Enriched metadata
 - Treatment tags (reference vs content, etc.)
 
 **Component 2 → Component 3 (Query & Retrieval)**:
+
 - Vector similarity search queries
 - Parent document retrieval requests
 - Quality score filters (Phase 3+)
 
 **Component 2 ← Developer (Domain Context)**:
+
 - Domain context document maintained by developer
 - Feedback on suggested candidates (Phase 2+)
 - Category updates when suggestions missed

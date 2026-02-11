@@ -21,6 +21,7 @@ Both goals are first-class. Design decisions deliberately choose approaches that
 **Target scale**: Tens of thousands of documents
 
 **Document types**:
+
 - Handwritten letters (scanned to image)
 - Typewritten documents (scanned to image or PDF)
 - Modern emails and digital PDFs
@@ -49,7 +50,7 @@ The single most important architectural principle in this project. Every externa
 
 **What this means in practice**:
 
-```
+```text
 Application code: storageService.store(file)   ← never changes
 Configuration:    STORAGE_BACKEND=local         ← changes per environment
 Runtime:          LocalFilesystemAdapter loads  ← determined by config
@@ -98,12 +99,14 @@ Runtime:          LocalFilesystemAdapter loads  ← determined by config
 ## Developer Background
 
 **Strong existing skills**:
+
 - 9+ years full-stack JavaScript/TypeScript
 - Docker and Linux environments
 - PostgreSQL (extensive experience)
 - AWS: EC2, ECS, S3, some OpenSearch
 
 **Skills being developed through this project**:
+
 - Python (OCR and AI/ML components)
 - Document processing pipelines
 - Vector embeddings and pgvector
@@ -115,11 +118,13 @@ Runtime:          LocalFilesystemAdapter loads  ← determined by config
 ## Development Environments
 
 **Local development (Phase 1–2)**:
+
 - Docker Compose orchestrates all local services (PostgreSQL + pgvector, application containers)
 - Configuration points to local services by default
 - No cloud dependencies required for development
 
 **Production (Phase 3+)**:
+
 - Same application code and Docker containers
 - Configuration points to AWS RDS, S3, and API endpoints
 - Docker runs on EC2 or migrates to ECS

@@ -71,6 +71,7 @@
 **Decision**: Use simple heuristics for Phase 1 (paragraph breaks, sentence boundaries), upgrade to ML-based approach in Phase 2
 
 **What Phase 1 implementation needs**:
+
 - Define exact rules: what constitutes a paragraph boundary, how to respect sentence breaks
 - Maximum chunk size guidance (500–1000 tokens estimated; refine through real-world testing)
 - Fallback strategy if heuristics produce poor results
@@ -86,6 +87,7 @@
 **Decision**: Phase 1 uses rule-based heuristics (emails have from/to headers, invoices have currency symbols, deeds have legal phrases)
 
 **What Phase 1 implementation needs**:
+
 - Document-specific pattern list for each category
 - Confidence thresholds for suggestions vs certainty
 - Fallback behaviour when patterns don't match clearly
@@ -101,6 +103,7 @@
 **Decision**: Phase 2 will determine threshold (3, 5, 10 occurrences?) through observation
 
 **What Phase 1 implementation needs**:
+
 - Configurable parameter for threshold (default: 5?)
 - Counter mechanism for tracking occurrences
 - Ability to adjust without code changes
@@ -116,6 +119,7 @@
 **Assumption**: Docling OCR on typewritten documents produces text suitable for embedding (~95% accuracy)
 
 **Validation Method**:
+
 - Process sample documents from estate collection
 - Compare extracted text to manual reading
 - If quality is poor, iterate on: preprocessing (deskew, contrast), OCR alternatives, quality gatekeeping
@@ -129,6 +133,7 @@
 **Assumption**: Simple paragraph/section break detection preserves semantic coherence adequately
 
 **Validation Method**:
+
 - Process real documents, inspect chunk boundaries
 - Check if chunks make sense standalone
 - If chunks are too small or fragmented, refine heuristics
@@ -142,6 +147,7 @@
 **Assumption**: Parent-child references enable adequate context retrieval in RAG
 
 **Validation Method**:
+
 - Component 3 implementation will confirm retrieval strategy
 - Query time performance will show if parent retrieval is a bottleneck
 

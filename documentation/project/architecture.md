@@ -17,6 +17,7 @@ See [pipeline-diagram.mermaid](pipeline-diagram.mermaid) for a visual representa
 **Inputs**: Files uploaded via web interface (PDF, JPG, PNG)
 
 **Outputs**:
+
 - Original files stored in configured backend (local filesystem Phase 1, S3 Phase 2+)
 - Database record with file metadata, storage location, MD5 hash, user-provided date and category
 
@@ -31,6 +32,7 @@ See [pipeline-diagram.mermaid](pipeline-diagram.mermaid) for a visual representa
 **Responsibility**: Transform stored documents into searchable vector representations. This component has two internal stages:
 
 **Internal Stage A — Text Extraction & Processing**:
+
 - Detect document type (born-digital PDF vs scanned vs image)
 - Extract text via PDF extraction or OCR (Docling primary, Tesseract fallback)
 - Assess extraction quality (0–100 score)
@@ -39,6 +41,7 @@ See [pipeline-diagram.mermaid](pipeline-diagram.mermaid) for a visual representa
 - Track domain context candidates for developer review
 
 **Internal Stage B — Embedding & Storage**:
+
 - Generate vector embeddings for each chunk (configurable provider)
 - Store embeddings + metadata + parent references in PostgreSQL with pgvector
 - Enable vector similarity search
@@ -103,6 +106,7 @@ Every document must track:
 ### Component Ownership & Database Access
 
 Each component writes specific records; components do not directly access each other's data:
+
 - Component 1 writes: intake document records (file metadata, storage location, hash)
 - Component 2 writes: processing records, enriched metadata, chunks, embeddings
 - Component 3 reads: chunks, embeddings, metadata (read-only)

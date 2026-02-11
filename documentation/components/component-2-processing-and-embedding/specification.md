@@ -155,7 +155,7 @@ For all document types:
 
 **Input Contract (from Component 1):**
 
-```
+```text
 {
   documentId: string,
   fileLocation: string (path in configured storage),
@@ -170,7 +170,7 @@ For all document types:
 
 **Output Contract (to Internal Stage: Embedding & Storage):**
 
-```
+```text
 {
   documentId: string,
   parentDocumentReference: {
@@ -278,6 +278,7 @@ For all document types:
 ## Design Decisions & Rationale
 
 ### OCR as "Good Enough"
+
 **Decision:** Use Docling for OCR on scanned documents and images. Assume it produces acceptable text and structure for embedding. If quality proves insufficient, we'll iterate.
 
 **Rationale:** Docling better preserves document structure (important for deeds, formal letters, maps) than Tesseract alone. Learning-focused approach: real-world iteration on your documents beats speculative architecture. Structure preservation helps semantic chunking. Quality scoring provides visibility if this assumption breaks down.
@@ -287,21 +288,25 @@ For all document types:
 **Note:** Your estate documents are mostly typewritten (good for OCR) and structure matters (good for Docling).
 
 ### Single Chunks for Maps/Plans
+
 **Decision:** Keep maps and plans as single chunks to preserve visual coherence, with separate metadata chunks for discoverable text.
 
 **Rationale:** Maps lose meaning if fragmented. Parent document retrieval pattern allows full visual context retrieval while keeping metadata searchable. Metadata chunks ensure maps surface in searches ("map of north field, 1975") even if OCR text extraction is poor.
 
 ### Domain Context as Human-Maintained
+
 **Decision:** You maintain authoritative domain context document. Component 2 flags candidates, you approve additions.
 
 **Rationale:** Prevents system from confidently making assumptions about terminology. High-confidence user approval threshold (>80%) means system learns gradually and safely.
 
 ### Semantic Chunking for Emails
+
 **Decision:** Chunk individual email messages semantically rather than keeping entire threads as single units.
 
 **Rationale:** Prevents variability in chunk size (some emails are one sentence, some are multi-page). Semantic chunking within messages keeps related content together. Parent document reference preserves thread context for RAG.
 
 ### Quality Scoring Without Hard Gates
+
 **Decision:** Phase 1 processes all documents regardless of quality score. Phase 3+ may implement quality gates and manual review.
 
 **Rationale:** Learning phase prioritizes data volume and visibility. Low-quality documents still provide value (metadata, relationships, patterns) even if text is imperfect. Quality scores flag which documents need attention without blocking pipeline.
@@ -365,6 +370,7 @@ For all document types:
   - **Testing**: pytest, pytest-fixtures for test data
 
 ### Architecture Pattern Recommendation
+
 Component 2 should follow a **pipeline pattern** with pluggable stages:
 
 1. **Input validation** (document exists, file accessible)

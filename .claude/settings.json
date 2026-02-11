@@ -11,6 +11,7 @@
       "Bash(ls:*)",
       "Bash(tail:*)",
       "Bash(git:*)",
+      "Bash(markdownlint:*)",
       "Edit(./*)",
       "Read(./*)",
       "Write(./*)"

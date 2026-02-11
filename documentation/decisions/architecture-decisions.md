@@ -73,6 +73,7 @@ All significant architectural and design decisions made during the design phase.
 **Decision**: System uses 4 pipeline components, not 5. Original Components 2 (text extraction) and 3 (embedding/storage) are merged into a single Component 2 with two internal stages.
 
 **New numbering**:
+
 - Component 1: Document Intake
 - Component 2: Text Extraction, Processing & Embedding (two internal stages)
 - Component 3: Query & Retrieval

@@ -95,6 +95,7 @@ Question: Should email chains be treated as single chunks or split by message?
 ### 1. Incremental Intelligence
 
 Start simple (heuristic rules), add sophistication (ML/LLM) in later phases:
+
 - Category detection: Phase 1 patterns → Phase 2 LLM
 - Semantic chunking: Phase 1 heuristics → Phase 2 ML similarity
 - Entity extraction: Phase 1 regex/NLP → Phase 2 LLM
@@ -102,6 +103,7 @@ Start simple (heuristic rules), add sophistication (ML/LLM) in later phases:
 ### 2. Human-in-the-Loop Learning
 
 System proposes, human decides. Prevents:
+
 - Confident mistakes from cascading
 - System making assumptions about terminology
 - Loss of control over entity/relationship definitions
@@ -109,6 +111,7 @@ System proposes, human decides. Prevents:
 ### 3. Iterate on Reality, Not Speculation
 
 Don't over-engineer for cases not yet seen:
+
 - OCR quality assumed good — validate on real documents
 - Chunking heuristics assumed adequate — inspect real chunk boundaries
 - Category rules derived from real document patterns
@@ -116,6 +119,7 @@ Don't over-engineer for cases not yet seen:
 ### 4. Observability First
 
 When uncertain about quality, measure it:
+
 - Quality scores visible for every document
 - Processing metadata recorded for audit
 - Reprocessing capability built in for refinement
@@ -123,6 +127,7 @@ When uncertain about quality, measure it:
 ### 5. Graceful Degradation
 
 One component failing shouldn't block the whole pipeline:
+
 - If OCR fails, try PDF extraction + metadata-only processing
 - If metadata extraction fails, record error but continue with basic data
 - Failures logged with enough context for debugging
@@ -201,6 +206,7 @@ One component failing shouldn't block the whole pipeline:
 ## Success Looks Like
 
 **Phase 1 Complete**:
+
 - Upload 20 documents (mix of letters, deeds, maps, invoices)
 - All text extracted and readable
 - Quality scores reflect real extraction quality
@@ -209,12 +215,14 @@ One component failing shouldn't block the whole pipeline:
 - Parent references work and enable context retrieval
 
 **Phase 2 Complete**:
+
 - Domain context flagging works (shows candidates, developer updates context)
 - Reprocessing refines earlier documents
 - LLM-assisted classification improves accuracy
 - Semantic chunking better at topic boundaries
 
 **Phase 3+ Complete**:
+
 - Email parsing works
 - Entity relationships detected
 - Queryable: "who owns the north field across time" returns connected documents

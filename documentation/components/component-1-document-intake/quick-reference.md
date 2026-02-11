@@ -9,6 +9,7 @@ Component 1 is a three-step document upload pipeline that accepts PDF, JPG, and 
 ## Three-Step Upload Flow
 
 ### Step 1: Initiate Upload
+
 **Frontend → Next.js API → Backend tRPC**
 
 - **Input**: `{ filename, fileSize, contentType }`
@@ -18,6 +19,7 @@ Component 1 is a three-step document upload pipeline that accepts PDF, JPG, and 
 - **DB state**: Record exists, no file stored yet
 
 ### Step 2: Upload File
+
 **Frontend → Next.js API (temp storage) → Backend REST**
 
 - **Input**: Multipart form-data with file binary + `documentId`
@@ -30,6 +32,7 @@ Component 1 is a three-step document upload pipeline that accepts PDF, JPG, and 
 - **DB state**: Record has file reference, file exists in storage
 
 ### Step 3: Finalize Upload
+
 **Frontend → Next.js API → Backend tRPC**
 
 - **Input**: `{ documentId, md5Hash, metadata?: { documentDate?, documentType?, notes? } }`
@@ -45,7 +48,7 @@ Component 1 is a three-step document upload pipeline that accepts PDF, JPG, and 
 ## Database Schema at a Glance
 
 | Field | Type | Purpose | Set at Step |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `id` | UUID, PK | Document identifier | Step 1 |
 | `original_filename` | VARCHAR 500 | Sanitised original name | Step 1 |
 | `file_size_bytes` | BIGINT | File size in bytes | Step 1 |
@@ -85,7 +88,7 @@ type StorageReference = {
 ## API Endpoints
 
 | Method | Path | Purpose | Auth Required |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | tRPC mutation | `initiateUpload` | Step 1 — create DB record, return documentId | Yes (API key) |
 | POST | `/upload/:documentId` | Step 2 — receive file binary, write to storage | Yes (API key) |
 | tRPC mutation | `finalizeUpload` | Step 3 — set MD5 hash, metadata, detect duplicates | Yes (API key) |
@@ -105,7 +108,7 @@ type StorageReference = {
 ## Configuration Sections
 
 | Section | Key Settings |
-|---|---|
+| --- | --- |
 | `server` | `port: 4000`, `host: '0.0.0.0'` (backend); `port: 3000` (frontend) |
 | `database` | PostgreSQL connection string, pool settings, migration auto-run on startup |
 | `storage` | Discriminated union on `provider`: `'local'` → `{ basePath }` / `'s3'` → `{ bucket, region, accessKeyId?, secretAccessKey? }` |
@@ -144,7 +147,7 @@ The `requestId` (UUID v4, generated per request in Next.js) may be appended to e
 ## Docker Services
 
 | Service | Port | Exposure |
-|---|---|---|
+| --- | --- | --- |
 | `frontend` (Next.js) | 3000 | Exposed to host |
 | `backend` (Express) | 4000 | Internal only — not exposed to host |
 | `db` (PostgreSQL 16-alpine) | 5432 | Internal only (may expose during development for debugging) |

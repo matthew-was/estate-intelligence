@@ -21,6 +21,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Purpose**: Defines what a well-formed `.claude/agents/*.md` file looks like for this project. Without this, each agent file risks being inconsistent — missing scope constraints, ignoring context loading, or producing an agent that drifts off-role.
 
 **Covers**:
+
 - The Claude Code agent file format: required sections, frontmatter (if any), system prompt structure
 - How to write a system prompt that produces consistent, in-scope agent behaviour (vs a description of the role)
 - Scope constraints written as instructions (`"Do NOT..."`, `"ONLY produce..."`) rather than narrative descriptions
@@ -46,6 +47,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Purpose**: Encodes the "Infrastructure as Configuration" principle in implementation terms. This is the highest-leverage skill because every component must follow it and every Senior Developer agent needs it.
 
 **Covers**:
+
 - The principle stated in code terms: every external service gets an interface
 - How to define a TypeScript service interface
 - How to define a Python abstract base class for the same service
@@ -68,6 +70,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Purpose**: Canonical metadata field definitions used across all components. Prevents components from independently inventing field names and types that conflict.
 
 **Covers**:
+
 - Canonical field list for document metadata (from project context + Component 2 spec)
 - Required vs optional fields per document type (deed, letter, map, email, invoice, operational log)
 - Chunk metadata fields (chunkId, parentDocumentId, chunkPosition, chunkType, treatmentTags, semanticTopic)
@@ -89,6 +92,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Purpose**: Testing patterns specific to document processing pipelines. Pipeline components test differently than query components or web applications.
 
 **Covers**:
+
 - Vitest setup for TypeScript packages (backend, frontend)
 - pytest setup for Python packages (processing pipeline)
 - Pipeline stage isolation: how to test one stage without triggering others
@@ -112,6 +116,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Purpose**: Standard workflow for extracting text from different document types. Encodes the Docling/Tesseract decision tree and quality assessment approach.
 
 **Covers**:
+
 - File type detection algorithm (born-digital PDF vs scanned PDF, image formats)
 - When to use pdfplumber vs Docling vs Tesseract (decision tree with examples)
 - Docling invocation pattern (local vs API mode, timeout handling)
@@ -134,6 +139,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Purpose**: Reference patterns for semantic chunking and vector embedding generation + storage. Shared between Component 2 (embedding stage) and Component 3 (query embedding uses same abstraction).
 
 **Covers**:
+
 - What an embedding is and why chunk size matters (concise reference)
 - Target chunk sizes and how to choose (500–1000 tokens guidance; adapt per document type)
 - Heuristic chunking algorithm for Phase 1 (paragraph break detection, sentence boundary respect, minimum chunk size guard)
@@ -156,6 +162,7 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 **Purpose**: Standard patterns for retrieval-augmented generation — the core of Component 3's value.
 
 **Covers**:
+
 - Query embedding (same abstraction layer as document embedding — provider must match)
 - Similarity search query patterns for pgvector (cosine similarity, L2 distance; when to use each)
 - Context assembly: how many chunks to retrieve (top-N), how to rank them

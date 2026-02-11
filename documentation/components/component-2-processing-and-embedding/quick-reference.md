@@ -148,6 +148,7 @@ Takes uploaded documents and produces extracted text, enriched metadata, semanti
 **Primary Language**: Python (Stage A — extraction/processing)
 
 **Key Libraries**:
+
 - `pdfplumber` — PDF text extraction
 - `docling` — Structure-preserving OCR (primary)
 - `pytesseract` — Tesseract OCR (fallback)

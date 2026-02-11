@@ -5,10 +5,13 @@
 When a task requires a Bash command that is not in the current allow list, always present the permission request with an explicit option to add it to the `.claude/settings.json` allow list. The user prefers to grow the allow list incrementally rather than approving one-off commands.
 
 Current allow list (`.claude/settings.json`):
+
 - `Bash(mkdir:*)`
 - `Bash(rm:*)`
+- `Bash(mv:*)`
 - `Bash(ls:*)`
 - `Bash(tail:*)`
+- `Bash(git:*)`
 - `Edit(./*)`
 - `Read(./*)`
 - `Write(./*)`
@@ -38,7 +41,7 @@ This is the **Estate Intelligence** project — a family document archiving syst
 
 ## Documentation Structure
 
-```
+```text
 documentation/
 ├── README.md                     ← Navigation index
 ├── SUMMARY.md                    ← What was done + .claude/ setup guide
@@ -52,6 +55,8 @@ documentation/
 
 ## Agent and Skills Setup
 
+> **Immediate next step**: Write `.claude/skills/agent-file-conventions.md` — this is the prerequisite for all agent file creation and must exist before any `.claude/agents/*.md` files are written.
+
 The `.claude/` directory structure and all agents and skills still need to be created. See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup guide, including:
 
 - 8 agents to create (Product Owner, Head of Development, Integration Lead, Senior Developer × 2, Implementer, Pair Programmer, Code Reviewer, Project Manager)
@@ -63,7 +68,7 @@ The `.claude/` directory structure and all agents and skills still need to be cr
 
 As agents complete their phases, outputs are written here:
 
-```
+```text
 .claude/docs/
 ├── requirements/
 │   ├── user-requirements.md       ← Product Owner (Step 1) — authoritative scope baseline

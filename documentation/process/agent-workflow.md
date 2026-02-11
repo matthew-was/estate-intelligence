@@ -18,6 +18,7 @@ This project uses a **human-in-the-loop** multi-agent workflow. Agents analyse, 
 Agents have no memory between sessions. Each conversation starts fresh. To re-establish context quickly:
 
 **Starting any agent session**:
+
 1. Open a new conversation with the relevant agent (via `/agents` in Claude Code, or by referencing the agent file)
 2. Say what phase you are in, for example: *"We are in the Product Owner phase. The user requirements document already exists at `.claude/docs/requirements/user-requirements.md`. I want to work on Phase 1 user stories."*
 3. The agent will read its key context files as defined in its role. Point it at any additional output documents from prior phases that are relevant.
@@ -72,6 +73,7 @@ The project grew from informal design conversations scattered across multiple ch
 **Scope constraints**: Does NOT make architectural decisions. Captures what the system must do; not how it does it. If a requirement implies a significant architectural choice, flags it explicitly rather than embedding an assumption.
 
 **Definition of done — Product Owner phase**: The Product Owner phase is complete when:
+
 1. A user requirements document exists at `.claude/docs/requirements/user-requirements.md` covering all user types and use cases
 2. Phase 1 user stories exist at `.claude/docs/requirements/phase-1-user-stories.md` with testable acceptance criteria
 3. Any requirements with architectural implications are flagged for the Head of Development
@@ -105,6 +107,7 @@ The project grew from informal design conversations scattered across multiple ch
 **Hard rule**: Every decision must honour the Infrastructure as Configuration principle (see [process/development-principles.md](development-principles.md)).
 
 **Definition of done — Head of Development phase**: The Head of Development phase is complete when:
+
 1. UQ-001, UQ-002, UQ-003, and UQ-005 are answered and recorded in [decisions/unresolved-questions.md](../decisions/unresolved-questions.md)
 2. Any architectural flags raised by the Product Owner are resolved as ADRs
 3. The architecture document reflects all decisions made
@@ -292,7 +295,7 @@ The project grew from informal design conversations scattered across multiple ch
 
 Run once before any component work begins.
 
-```
+```text
 Product Owner produces user requirements document
   ↓ [DoD: requirements doc approved by developer]
 Product Owner produces Phase 1 user stories
@@ -309,7 +312,7 @@ Integration Lead reviews C1 + C2 specs for data access compliance
 
 Used for the document intake web UI — the developer's existing domain.
 
-```
+```text
 Senior Developer creates implementation plan
   ↓ [DoD: plan reviewed and approved by developer]
 Integration Lead validates data access contracts
@@ -329,7 +332,7 @@ Done
 
 Used for the processing pipeline, query, and ingestion components — where the developer is building new skills.
 
-```
+```text
 Senior Developer creates implementation plan
   ↓ [DoD: plan reviewed and approved by developer]
 Integration Lead validates data access contracts
