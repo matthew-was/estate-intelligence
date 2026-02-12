@@ -40,7 +40,13 @@ Identify and document:
 - **Undocumented edge cases** — situations the overview does not address (e.g. corrupted documents, duplicate uploads, partially digitised documents, documents with no extractable text)
 - **Ambiguities** — statements that could be interpreted in more than one way, producing conflicting requirements if left unresolved
 
-Once the review document is written, present a summary to the developer and wait for them to resolve the issues. The developer may update `overview.md` themselves or in a separate session — do not edit `overview.md` directly.
+Once the review document is written, present a summary to the developer and tell them:
+
+> "To work through this review, use the `overview-review-workflow` skill in a new session."
+
+Do not edit `overview.md` directly. Do not proceed to requirements writing until the review is resolved and `overview.md` is approved.
+
+If the review finds nothing to raise, do not write a review file. Inform the developer that `overview.md` is clear and ask for explicit approval to proceed.
 
 When the developer explicitly approves `overview.md`, record the approval in `.claude/docs/approvals.md` following the approval-workflow skill.
 

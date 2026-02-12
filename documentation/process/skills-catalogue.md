@@ -38,6 +38,29 @@ Skills are reusable workflow definitions and domain knowledge patterns reference
 
 ---
 
+### 0b. Overview Review Workflow
+
+**File**: `.claude/skills/overview-review-workflow.md`
+
+**Status**: Written
+
+**Purpose**: Defines the repeatable process for working through a Product Owner overview review with the developer — discussing each point, resolving decisions, applying changes to `overview.md`, archiving the review file, and updating project memory.
+
+**Covers**:
+
+- Trigger prompt and how to confirm the developer's preferred approach
+- Discussion protocol: present each point with current text and line reference, state obvious resolutions for confirmation, do not edit mid-discussion
+- Plan writing: group changes by review category, include line references and any emergent changes
+- Applying changes section by section (markdownlint hook handles linting automatically)
+- Archive step: naming convention (`overview-review-YYYY-MM-DD-HHMM.md`), move command
+- Memory update: increment review count, update archived review path, replace key decisions list with cumulative record
+
+**Used by**: Developer-facing workflow; invoked directly in a Claude Code session when an `overview-review.md` exists
+
+**Why this is a skill and not an agent**: It is a human-in-the-loop interactive process. The developer makes every decision; the skill defines the structure of the conversation and the steps that follow.
+
+---
+
 ### 0a. Approval Workflow
 
 **File**: `.claude/skills/approval-workflow.md`
