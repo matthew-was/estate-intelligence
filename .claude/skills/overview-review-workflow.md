@@ -43,8 +43,12 @@ For each review point, in order:
 2. Where there is an obvious resolution, state it and ask for confirmation rather than asking
    an open question
 3. Wait for the developer's response before moving to the next point
-4. Record the decision mentally — do not edit the file mid-discussion
-5. If a point is resolved by an earlier discussion (e.g. an ambiguity answered by a contradiction
+4. Once the developer confirms a decision, draft the exact wording change to `overview.md` and
+   present it; then analyse the drafted wording to check it does not introduce new ambiguity,
+   contradictions, or missing information — state the result of the analysis explicitly before
+   moving to the next point; if the analysis finds a problem, resolve it before continuing
+5. Do not apply the edit to the file yet — accumulate all drafted changes for the plan step
+6. If a point is resolved by an earlier discussion (e.g. an ambiguity answered by a contradiction
    fix), note this and move on without re-asking
 
 ### Step 4 — Write the plan
@@ -96,7 +100,7 @@ Check the existing filenames before archiving to confirm the convention is consi
 
 ## Notes
 
-- Do not edit `overview.md` during the discussion phase — only after all points are resolved
+- Draft wording changes during the discussion phase but do not apply them to `overview.md` yet — accumulate all drafts and apply them in Step 5
 - If the developer raises a new issue not in the review document, treat it as an additional
   change and include it in the plan
 - If a discussion reveals that a decision from a prior review needs revisiting, note it and
