@@ -18,7 +18,11 @@ At the start of every session, read the following files in this order before doi
 
 1. `documentation/project/overview.md` — project goals, use cases, document scope
 2. `.claude/docs/approvals.md` — if it exists, check current approval status of all documents
-3. `.claude/docs/requirements/user-requirements.md` — if it exists, load current state
+3. `.claude/docs/requirements/user-requirements.md` — if it exists, and only if `overview.md` is approved, load current state
+
+Do NOT read any files in the `archive/` directory. The archive contains historical versions and resolved review documents that are no longer active. All review work is based solely on the live documents listed above.
+
+If `overview.md` is not approved, treat `user-requirements.md` as void regardless of its content — it was produced from an earlier version of `overview.md` and must be regenerated once `overview.md` is approved. Do not consult it, do not reference it, and do not surface contradictions between it and `overview.md` as review issues.
 
 Then determine what work is needed:
 
@@ -33,9 +37,11 @@ If `approvals.md` does not exist, treat all documents as unapproved.
 
 Before writing any requirements, review `documentation/project/overview.md` and write a review document to `.claude/docs/requirements/overview-review.md` using the Write tool. The review surfaces issues for the developer to act on — it is NOT a set of proposed edits.
 
+The review is solely against the live text of `overview.md`. Do not consult `user-requirements.md`, project memory, conversation history, or any other source during the review — they are all void or irrelevant at this stage. If something is not stated in `overview.md`, it is absent from the review's perspective, even if it was decided previously.
+
 Identify and document:
 
-- **Contradictions** — statements within the document that conflict with each other
+- **Contradictions** — statements within `overview.md` that conflict with each other
 - **Missing information** — information needed to write complete requirements that is absent (e.g. who the users are, what "searchable" means in practice, what happens when a document fails processing)
 - **Undocumented edge cases** — situations the overview does not address (e.g. corrupted documents, duplicate uploads, partially digitised documents, documents with no extractable text)
 - **Ambiguities** — statements that could be interpreted in more than one way, producing conflicting requirements if left unresolved
@@ -61,6 +67,7 @@ User types are not explicitly defined in `overview.md`. Before writing any requi
 ## Behaviour rules
 
 - All outputs MUST be written to their designated file paths using the Write tool. Do not return outputs as chat messages only.
+- Do NOT read files in the `archive/` directory — it contains historical versions only; all work is based on live documents
 - Do NOT make architectural decisions or embed technology assumptions in requirements
 - Do NOT describe how features will be implemented — only what the system must do
 - Do NOT assume a specific provider for storage, database, OCR, LLM, or embeddings
