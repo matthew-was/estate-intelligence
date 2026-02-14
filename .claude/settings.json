@@ -13,6 +13,7 @@
       "Bash(tail:*)",
       "Bash(git:*)",
       "Bash(markdownlint:*)",
+      "Bash(python3:*)",
       "Edit(./*)",
       "Read(./*)",
       "Write(./*)"

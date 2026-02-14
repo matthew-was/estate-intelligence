@@ -4,6 +4,10 @@ Derived from: `.claude/docs/requirements/user-requirements.md` (approved 2026-02
 Covers all 137 requirements (UR-001 to UR-137).
 Stories are assigned to Phase 1, Phase 2, Phase 3, or Phase Future based on the priority and phase assignment in the requirements document. Phase Future = no phase assigned yet; no implementation expected until a specific phase is assigned.
 
+**Convention note**: User stories for system-wide non-functional requirements (privacy, provider abstraction, configuration, error messages, backups, schema constraints) use "As a Primary Archivist" as a representative protagonist. These constraints apply regardless of user type and are not privileges specific to the Primary Archivist.
+
+**Convention note**: Stories that document deliberate system constraints (things the system does not do in a given phase) use "As a [user], I want the system to [not do X]..." framing with a **Note** block explaining the constraint purpose. These are intentional scope boundary stories, not feature stories.
+
 ---
 
 ## Table of Contents
@@ -189,11 +193,14 @@ As a Primary Archivist, I want to run a CLI command pointing at a directory of f
 
 - [ ] A CLI command accepts a path to a source directory as input
 - [ ] The command stores accepted files in the archive
+- [ ] File acceptance is gated on the naming convention enforced by US-010; files that do not conform are rejected before reaching the archive
 - [ ] Bulk ingestion and document processing are separate steps; running ingestion does not trigger processing
 - [ ] A watched directory mode is not provided at any phase
 - [ ] The storage mechanism (file copy, reference, or other) is an architectural decision `[ARCHITECTURAL FLAG — for Head of Development]`
 
 **Definition of done**: Running the CLI command with a valid source directory stores accepted files in the archive; processing must be triggered separately.
+
+> **Note — hard blocking dependency**: The storage mechanism (file copy, reference, or other) is defined by UR-012 and must be resolved by the Head of Development before this story can be fully implemented. Without knowing the storage mechanism, the core acceptance criterion ("the command stores accepted files in the archive") cannot be implemented.
 
 **Phase**: Phase 1
 
@@ -252,6 +259,8 @@ As a Primary Archivist, I want an interrupted ingestion run to be rolled back so
 
 **Definition of done**: Restarting the CLI after an interrupted run finds no partial data from the interrupted run; cleanup has run before new files are accepted.
 
+> **Note — hard blocking dependency**: The rollback mechanism is defined by UR-017 and must be resolved by the Head of Development before this story can be implemented. Without knowing the rollback mechanism (transaction log, staging directory, or other), the cleanup and rollback criteria cannot be implemented.
+
 **Phase**: Phase 1
 
 ---
@@ -260,7 +269,9 @@ As a Primary Archivist, I want an interrupted ingestion run to be rolled back so
 
 Derived from: UR-020
 
-The system does not implement concurrent run detection in Phase 1. This is a known limitation that is documented rather than enforced.
+As a Primary Archivist, I want the system to have no concurrent run detection in Phase 1 so that this known limitation is documented and understood rather than silently causing problems.
+
+**Note**: This is a scope boundary constraint story. It documents what the system deliberately does not do in this phase, rather than a user capability. The acceptance criteria are the verifiable form of the constraint.
 
 **Acceptance criteria**
 
@@ -320,10 +331,10 @@ As a Primary Archivist, I want a summary report produced even when the source di
 **Acceptance criteria**
 
 - [ ] If the source directory is empty, the report is produced with zero counts and a note that no files were found
+- [ ] If files are present but none conform to the naming convention, the report is produced with zero counts and a note that no conforming files were found
 - [ ] The report format is the same as for a normal run
-- [ ] The case where files are present but none conform to the naming convention is covered by US-010
 
-**Definition of done**: Running ingestion against an empty directory produces a report with zero counts and a note; no silent no-op occurs.
+**Definition of done**: Running ingestion against an empty directory or a directory where no files conform to the naming convention produces a report with zero counts and a note; no silent no-op occurs.
 
 **Phase**: Phase 1
 
@@ -416,13 +427,13 @@ As a Primary Archivist, I want rescanned copies of the same document to be detec
 
 Note: duplicate detection behaviour for inline email attachments (such as signature images) is an open question deferred to Phase 2 scope definition.
 
+**Note**: This story is a Phase Future scope placeholder. The specific implementation approach (similarity method, tooling, phase assignment) is deferred until tooling and extraction capability are confirmed. All acceptance criteria and the DoD will be decomposed into specific testable stories when a phase is assigned. No implementation is expected against this story directly.
+
 **Acceptance criteria**
 
-- [ ] Content-based duplicate detection (beyond hash matching) is implemented in a future phase
-- [ ] The appropriate phase is determined when tooling and extraction capability are confirmed
-- [ ] Content-based duplicate detection is implemented using a defined similarity method appropriate to the document types in scope at that phase
+- [ ] Content-based duplicate detection (beyond hash matching) is implemented in the phase assigned to this story
 
-**Definition of done**: Content-based duplicate detection is specified, implemented, and tested in the phase it is assigned to.
+**Definition of done**: This story is closed when it has been decomposed into specific testable stories during the relevant phase scope definition; no implementation is expected against this story directly.
 
 **Phase**: Phase Future
 
@@ -446,6 +457,8 @@ As a Primary Archivist, I want to submit multiple files as a single virtual docu
 
 **Definition of done**: A multi-file virtual document group can be submitted via the bulk ingestion CLI, is processed as one unit, and appears as a single document in query results.
 
+> **Note — hard blocking dependency**: The CLI mechanism for expressing a group (flag, manifest file, or other) is defined by UR-035 and must be resolved by the Head of Development before this story can be implemented. Without knowing the group expression mechanism, the CLI cannot be designed or tested.
+
 **Phase**: Phase 1
 
 ---
@@ -455,6 +468,8 @@ As a Primary Archivist, I want to submit multiple files as a single virtual docu
 Derived from: UR-036, UR-037
 
 As a Primary Archivist, I want the entire virtual document group to be rejected if any file fails validation so that no partial or semantically incomplete group is stored.
+
+**Note**: Virtual document grouping is available via bulk ingestion CLI only in Phase 1 (per US-022 and UR-035). The fail-fast and "not attempted" outcomes in this story apply to CLI bulk ingestion only; web UI grouping is deferred to Phase 2.
 
 **Acceptance criteria**
 
@@ -562,7 +577,7 @@ As a Primary Archivist, I want text to be extracted from typed and printed docum
 
 ---
 
-### US-028a: Extract text from Phase 2 document types (Phase 2)
+### US-029: Extract text from Phase 2 document types (Phase 2)
 
 Derived from: UR-042
 
@@ -579,7 +594,7 @@ As a Primary Archivist or Family Member, I want text to be extracted from handwr
 
 ---
 
-### US-029: Produce a quality score per page and for the document as a whole
+### US-030: Produce a quality score per page and for the document as a whole
 
 Derived from: UR-043
 
@@ -597,7 +612,7 @@ As a Primary Archivist, I want each page and the document as a whole to receive 
 
 ---
 
-### US-030: Evaluate all pages — no fail-fast within a document
+### US-031: Evaluate all pages — no fail-fast within a document
 
 Derived from: UR-044
 
@@ -607,15 +622,15 @@ As a Primary Archivist, I want all pages in a document to be evaluated regardles
 
 - [ ] Every page in a document is scored, regardless of the outcome of any other page
 - [ ] Evaluation does not stop early on the first failing page
-- [ ] Flag reason content requirements for failing pages are covered by US-035
+- [ ] Flag reason content requirements for failing pages are covered by US-036
 
-**Definition of done**: After extraction, all pages have scores; a document with multiple failing pages lists all of them in the flag reason.
+**Definition of done**: After extraction, all pages have scores; no page is skipped regardless of the outcome of preceding pages.
 
 **Phase**: Phase 1
 
 ---
 
-### US-031: Flag a document if any page fails the text quality threshold
+### US-032: Flag a document if any page fails the text quality threshold
 
 Derived from: UR-045, UR-046
 
@@ -625,7 +640,7 @@ As a Primary Archivist, I want a document flagged for review if any page score f
 
 - [ ] A document is flagged if any page score falls below the configured threshold
 - [ ] The text quality threshold is configurable via the external configuration file
-- [ ] The flag reason identifies the failing pages and their scores
+- [ ] The flag reason identifies the failing pages; including scores per page is an implementer decision (UR-045 requires page identification only)
 
 **Definition of done**: A document with any page below the configured threshold is flagged; the threshold is changeable without a code change.
 
@@ -633,7 +648,7 @@ As a Primary Archivist, I want a document flagged for review if any page score f
 
 ---
 
-### US-032: Store and flag a document with no extractable text
+### US-033: Store and flag a document with no extractable text
 
 Derived from: UR-047, UR-081
 
@@ -645,7 +660,7 @@ As a Primary Archivist, I want a document that yields no extractable text to be 
 - [ ] The document is flagged for manual review
 - [ ] The document is absent from the search index
 - [ ] In Phase 1, there is no in-app resolution path; the document remains flagged until Phase 2 supplementary context is available
-- [ ] See also US-045 for the general rule on search exclusion during pipeline processing
+- [ ] See also US-047 for the general rule on search exclusion during pipeline processing
 
 **Definition of done**: A document with no extractable text is stored, appears in the curation queue as flagged, and is absent from search results.
 
@@ -653,7 +668,7 @@ As a Primary Archivist, I want a document that yields no extractable text to be 
 
 ---
 
-### US-033: Store and flag a document with partial text extraction
+### US-034: Store and flag a document with partial text extraction
 
 Derived from: UR-048
 
@@ -664,7 +679,7 @@ As a Primary Archivist, I want a document where only some pages yield text to be
 - [ ] A document with mixed extractable and non-extractable pages is stored and flagged
 - [ ] No partial embeddings are generated for such a document
 - [ ] The document is absent from the search index until the flag is cleared and processing completes
-- [ ] See also US-045 for the general rule on search exclusion during pipeline processing
+- [ ] See also US-047 for the general rule on search exclusion during pipeline processing
 
 **Definition of done**: A document with partially extractable content is flagged; no partial embeddings exist; it does not appear in search results.
 
@@ -672,7 +687,7 @@ As a Primary Archivist, I want a document where only some pages yield text to be
 
 ---
 
-### US-034: Store and flag a document with zero pages
+### US-035: Store and flag a document with zero pages
 
 Derived from: UR-049
 
@@ -690,7 +705,7 @@ As a Primary Archivist, I want a document that opens successfully but contains z
 
 ---
 
-### US-035: Include all failing pages in the flag reason
+### US-036: Include all failing pages in the flag reason
 
 Derived from: UR-050
 
@@ -698,7 +713,7 @@ As a Primary Archivist, I want the flag reason for a text quality failure to lis
 
 **Acceptance criteria**
 
-- [ ] The flag reason for a text quality failure includes the page number and score for each failing page
+- [ ] The flag reason for a text quality failure includes the page number for each failing page; including scores is an implementer decision (UR-050 requires page identification only)
 - [ ] No failing page is omitted from the flag reason
 
 **Definition of done**: Viewing the flag on a quality-failed document shows the full list of failing pages; no pages are omitted.
@@ -709,7 +724,7 @@ As a Primary Archivist, I want the flag reason for a text quality failure to lis
 
 ## 7. Metadata Detection and Completeness
 
-### US-036: Detect metadata automatically from document content
+### US-037: Detect metadata automatically from document content
 
 Derived from: UR-051, UR-052
 
@@ -720,7 +735,7 @@ As a Primary Archivist, I want the system to detect document type, dates, people
 - [ ] The system detects document type, dates, people, land references, and description from document content
 - [ ] If the system detects a description, it overwrites the description provided at intake
 - [ ] If the system does not detect a description, the intake description is preserved
-- [ ] When the system detects no value for a non-description metadata field, that field is stored as empty; the intake description is preserved per UR-052
+- [ ] When the system detects no value for a non-description metadata field, that field is not populated; the intake description is preserved per UR-052
 - [ ] The curator can correct any detected metadata field via the curation UI
 
 **Definition of done**: After processing, a document has system-detected values for all metadata fields the pipeline can produce; the system-generated description overwrites the intake description only when a description was detected; if no description was detected, the intake description is preserved.
@@ -729,7 +744,7 @@ As a Primary Archivist, I want the system to detect document type, dates, people
 
 ---
 
-### US-037: Assess metadata completeness independently of text quality
+### US-038: Assess metadata completeness independently of text quality
 
 Derived from: UR-053, UR-055
 
@@ -748,7 +763,7 @@ As a Primary Archivist, I want metadata completeness to be assessed with its own
 
 ---
 
-### US-038: Record both failures as a single flag when both thresholds fail
+### US-039: Record both failures as a single flag when both thresholds fail
 
 Derived from: UR-054
 
@@ -767,7 +782,7 @@ As a Primary Archivist, I want a single flag with multiple reasons when both tex
 
 ---
 
-### US-039: Metadata completeness fields and scoring method (implementation decision)
+### US-040: Metadata completeness fields and scoring method (implementation decision)
 
 Derived from: UR-056
 
@@ -775,16 +790,16 @@ As a Primary Archivist, I want the specific metadata fields assessed for complet
 
 **Acceptance criteria**
 
-- [ ] The metadata fields used in the completeness assessment are determined during implementation, informed by corpus analysis
-- [ ] The scoring method is determined during implementation, informed by the extraction tooling selected
+- [ ] The completeness assessment evaluates a defined set of metadata fields `[ARCHITECTURAL FLAG — for Head of Development: fields are determined during implementation informed by corpus analysis; see UR-056]`
+- [ ] The scoring method produces a numeric score in a documented range for each assessed document `[ARCHITECTURAL FLAG — for Head of Development: scoring method is determined during implementation informed by extraction tooling selected; see UR-056]`
 
-**Definition of done**: The implementer has defined which fields contribute to the completeness score and how the score is calculated, and has documented this decision before US-037 is closed.
+**Definition of done**: The implementer has defined which fields contribute to the completeness score and how the score is calculated, and has documented this decision before US-038 is closed.
 
 **Phase**: Phase 1
 
 ---
 
-### US-040: Store documents under a system-generated internal identifier
+### US-041: Store documents under a system-generated internal identifier
 
 Derived from: UR-057
 
@@ -803,7 +818,7 @@ As a Primary Archivist, I want each document stored under a unique internal iden
 
 ---
 
-### US-041: Derive a human-readable archive reference from curated metadata
+### US-042: Derive a human-readable archive reference from curated metadata
 
 Derived from: UR-058, UR-059, UR-060
 
@@ -818,11 +833,13 @@ As a Primary Archivist, I want each document to have a human-readable archive re
 
 **Definition of done**: Every document citation includes a human-readable archive reference; correcting metadata causes the reference to reflect the updated values on next display.
 
+> **Note — hard blocking dependency**: The archive reference derivation rule (which fields contribute and in what format) is defined by UR-060 and must be resolved by the Head of Development before this story can be implemented. Without the derivation rule, the archive reference cannot be computed or displayed.
+
 **Phase**: Phase 1
 
 ---
 
-### US-042: Metadata correction updates fields only in Phase 1
+### US-043: Metadata correction updates fields only in Phase 1
 
 Derived from: UR-061
 
@@ -832,7 +849,8 @@ As a Primary Archivist, I want metadata corrections in Phase 1 to update the met
 
 - [ ] Correcting metadata via the curation UI updates the metadata fields
 - [ ] Re-embedding is not triggered in Phase 1
-- [ ] The document remains in the search index with its existing embeddings unchanged; corrected metadata fields are reflected in the document record and citations on next display
+- [ ] If the document is already in the search index, it remains there with its existing embeddings unchanged; corrected metadata fields are reflected in the document record and citations on next display
+- [ ] If the document is not yet in the search index (e.g. flagged before the embedding step completed), metadata correction updates the stored metadata fields only; the document will be indexed when pipeline processing completes
 
 **Definition of done**: Correcting a metadata field updates the stored value; no re-embedding is triggered; the document remains searchable.
 
@@ -840,7 +858,7 @@ As a Primary Archivist, I want metadata corrections in Phase 1 to update the met
 
 ---
 
-### US-042a: Re-embedding triggered by metadata correction (Phase 2)
+### US-044: Re-embedding triggered by metadata correction (Phase 2)
 
 Derived from: UR-061
 
@@ -860,7 +878,7 @@ As a Primary Archivist or Family Member, I want correcting document metadata to 
 
 ## 8. Embeddings and Chunking
 
-### US-043: Generate embeddings for each document chunk
+### US-045: Generate embeddings for each document chunk
 
 Derived from: UR-062
 
@@ -878,7 +896,7 @@ As a Primary Archivist, I want embeddings generated for each chunk of a document
 
 ---
 
-### US-044: Use AI-agent-determined semantic chunking
+### US-046: Use AI-agent-determined semantic chunking
 
 Derived from: UR-063
 
@@ -890,13 +908,15 @@ As a Primary Archivist, I want chunk boundaries to be determined by an AI agent 
 - [ ] Fixed-size splitting is not used
 - [ ] The AI agent used for chunking and its operating model are architectural decisions `[ARCHITECTURAL FLAG — for Head of Development]`
 
-**Definition of done**: Chunk boundaries are reviewed against at least two Phase 1 document types (e.g. a typewritten document and a digital PDF) from the estate corpus and confirmed by the Primary Archivist to align with logical document units; no chunk boundary splits a meaningful unit arbitrarily.
+**Definition of done**: Chunk boundaries are reviewed against at least two Phase 1 document types (e.g. a typewritten document and a digital PDF) from the estate corpus. The Primary Archivist confirms no boundary splits a logically indivisible unit (e.g. a clause, a named transaction, or a named party's entry) and records the review outcome before the story is closed. Human review is the appropriate verification method for AI-determined chunk boundaries; no automated test is expected.
+
+> **Note — hard blocking dependency**: The AI agent used for chunking and its operating model are defined by UR-063 and must be resolved by the Head of Development before this story can be implemented. Without selecting the agent and its operating model (prompting strategy, token limits, retry logic), semantic chunking cannot be implemented or verified.
 
 **Phase**: Phase 1
 
 ---
 
-### US-045: Exclude documents from search until embedding completes
+### US-047: Exclude documents from search until embedding completes
 
 Derived from: UR-064, UR-065
 
@@ -907,7 +927,7 @@ As a Primary Archivist, I want a document to be absent from search results until
 - [ ] A document does not appear in search results until the embedding step has completed successfully
 - [ ] There is no transient visibility window during pipeline resumption
 - [ ] A document with mixed extractable and non-extractable pages is held pending review with no partial embeddings
-- [ ] See also US-032 and US-033 for related zero-text and partial-extraction cases
+- [ ] See also US-033 and US-034 for related zero-text and partial-extraction cases
 
 **Definition of done**: A document cannot be returned by a query until all its chunks have embeddings; a partially-embedded or flagged document does not appear in search results.
 
@@ -917,7 +937,7 @@ As a Primary Archivist, I want a document to be absent from search results until
 
 ## 9. Pipeline Processing
 
-### US-046: Record pipeline step completion independently of quality outcome
+### US-048: Record pipeline step completion independently of quality outcome
 
 Derived from: UR-066
 
@@ -929,7 +949,7 @@ As a Primary Archivist, I want each pipeline step to record its own completion s
 - [ ] A step that ran successfully is marked complete even if its output failed a quality threshold
 - [ ] A step that failed due to a technical error is recorded as incomplete
 - [ ] Resumption starts from the first incomplete step, not from the beginning
-- [ ] Processing runs are triggered manually in Phase 1 (see US-048); there is no automatic retry between runs; this criterion cannot be fully verified until UR-070 is resolved by the Head of Development
+- [ ] Processing resumption starts on the next processing run; the trigger mechanism is covered by US-050
 
 **Definition of done**: A document whose quality failed at extraction has the extraction step marked complete; on resumption, the pipeline skips completed steps and starts from the next incomplete step.
 
@@ -937,7 +957,7 @@ As a Primary Archivist, I want each pipeline step to record its own completion s
 
 ---
 
-### US-047: Retry technically failed steps on the next processing run
+### US-049: Retry technically failed steps on the next processing run
 
 Derived from: UR-067, UR-068
 
@@ -949,7 +969,7 @@ As a Primary Archivist, I want a step that fails due to a technical error to be 
 - [ ] The step is retried on the next processing run
 - [ ] A configurable retry limit prevents infinite retry loops
 - [ ] When the retry limit is exceeded, the document is flagged with the error reason and surfaced in the curation queue
-- [ ] Processing runs are triggered manually in Phase 1 (see US-048); there is no automatic retry between runs; this criterion cannot be fully verified until UR-070 is resolved by the Head of Development
+- [ ] Processing runs are triggered manually in Phase 1 (see US-050); there is no automatic retry between runs; this criterion cannot be fully verified until UR-070 is resolved by the Head of Development
 
 **Definition of done**: A document blocked by a recurring technical failure is flagged in the curation queue after the configured retry limit is reached; transient failures that resolve within the limit do not flag the document.
 
@@ -957,7 +977,7 @@ As a Primary Archivist, I want a step that fails due to a technical error to be 
 
 ---
 
-### US-048: Manual processing trigger in Phase 1
+### US-050: Manual processing trigger in Phase 1
 
 Derived from: UR-069, UR-070
 
@@ -971,11 +991,13 @@ As a Primary Archivist, I want to trigger document processing manually in Phase 
 
 **Definition of done**: Processing does not start automatically in Phase 1; manual triggering is the only mechanism. The negative constraint (processing does not start automatically) is testable in Phase 1. The positive constraint (manual trigger invokes processing) cannot be fully verified until UR-070 is resolved by the Head of Development. The story cannot be fully closed until UR-070 is resolved and the trigger surface is implemented and tested.
 
+> **Note — hard blocking dependency**: The trigger surface for this story is defined by UR-070, which must be resolved by the Head of Development before this story can be fully closed. The negative constraint (no automatic processing) can be implemented and verified independently. The positive constraint (manual trigger works) cannot be implemented or tested until UR-070 is resolved. This is not an informational architectural flag — the story is partially blocked until UR-070 is resolved.
+
 **Phase**: Phase 1
 
 ---
 
-### US-049: Flag a document with a missing or unreadable stored file
+### US-051: Flag a document with a missing or unreadable stored file
 
 Derived from: UR-071, UR-072
 
@@ -994,7 +1016,7 @@ As a Primary Archivist, I want a document with a missing or unreadable stored fi
 
 ---
 
-### US-050: Flag mechanism is the single reporting location for document-level failures
+### US-052: Flag mechanism is the single reporting location for document-level failures
 
 Derived from: UR-073
 
@@ -1012,7 +1034,7 @@ As a Primary Archivist, I want all document-level failures to be reported throug
 
 ---
 
-### US-051: Pipeline is re-entrant by design
+### US-053: Pipeline is re-entrant by design
 
 Derived from: UR-074
 
@@ -1025,13 +1047,15 @@ As a Primary Archivist, I want the processing pipeline to be re-entrant so that 
 
 **Definition of done**: A document that has completed extraction but not embedding can be re-processed starting from the embedding step without re-running extraction; pipeline state is persisted across processing runs. The pipeline state tracking mechanism is defined by UR-074 `[ARCHITECTURAL FLAG — for Head of Development]` and must be resolved before this story can be closed.
 
+> **Note — hard blocking dependency**: This story cannot be implemented until the Head of Development has resolved UR-074 (pipeline state tracking mechanism). This is not an informational architectural flag — no implementation decisions can be made for this story until UR-074 is resolved. Stories such as US-041 carry architectural flags that provide context only and do not block implementation; this story is different.
+
 **Phase**: Phase 1
 
 ---
 
 ## 10. Flags and Curation Queue
 
-### US-052: Flag documents that fail quality checks or experience technical failures
+### US-054: Flag documents that fail quality checks or experience technical failures
 
 Derived from: UR-075, UR-076
 
@@ -1049,7 +1073,7 @@ As a Primary Archivist, I want documents that fail any quality check or experien
 
 ---
 
-### US-053: Clear a flag to mark a document ready to resume
+### US-055: Clear a flag to mark a document ready to resume
 
 Derived from: UR-077, UR-078
 
@@ -1061,7 +1085,7 @@ As a Primary Archivist, I want to clear a flag to mark a document ready to resum
 - [ ] Clearing a flag does not re-run completed steps
 - [ ] Clearing a flag does not automatically trigger processing
 - [ ] Clearing a flag clears the flag reason field
-- [ ] The UI mechanism for clearing a flag is covered by US-079
+- [ ] The UI mechanism for clearing a flag is covered by US-081
 
 **Definition of done**: After clearing a flag, the document is no longer flagged, its reason field is empty, and it will be picked up by the next manual processing trigger starting from the next incomplete step.
 
@@ -1069,7 +1093,7 @@ As a Primary Archivist, I want to clear a flag to mark a document ready to resum
 
 ---
 
-### US-054: Re-flag a document if processing fails again after a flag is cleared
+### US-056: Re-flag a document if processing fails again after a flag is cleared
 
 Derived from: UR-079
 
@@ -1087,7 +1111,7 @@ As a Primary Archivist, I want a document to be re-flagged with a fresh reason i
 
 ---
 
-### US-055: Curation queue ordered by flag timestamp
+### US-057: Curation queue ordered by flag timestamp
 
 Derived from: UR-080
 
@@ -1107,7 +1131,7 @@ As a Primary Archivist, I want the curation queue to be ordered by the timestamp
 
 ## 11. Supplementary Context
 
-### US-056: Attach supplementary context to a document (Phase 2)
+### US-058: Attach supplementary context to a document (Phase 2)
 
 Derived from: UR-082, UR-083
 
@@ -1116,7 +1140,7 @@ As a Primary Archivist or Family Member, I want to attach human-provided text to
 **Acceptance criteria**
 
 - [ ] Phase 2 allows a curator to attach supplementary context text to a flagged document
-- [ ] Supplementary context text is combined with any extracted text and used as the input to the embedding step; it does not re-run text extraction; the document progresses from the embedding step onward
+- [ ] Supplementary context text is combined with any available extracted text and used as input to the embedding step, making the document embeddable and searchable `[ARCHITECTURAL FLAG — for Head of Development: the specific pipeline mechanics of how supplementary context interacts with the text extraction and embedding steps depend on UR-070 and UR-074]`
 - [ ] Supplementary context is embedded and searchable
 - [ ] When a query draws on supplementary context, the citation identifies it as supplementary context added by the curator, not text extracted from the document
 - [ ] After supplementary context is attached and processing completes, the document appears in search results
@@ -1129,7 +1153,7 @@ As a Primary Archivist or Family Member, I want to attach human-provided text to
 
 ## 12. Vocabulary Management
 
-### US-057: Maintain a domain vocabulary in the database
+### US-059: Maintain a domain vocabulary in the database
 
 Derived from: UR-084, UR-086
 
@@ -1147,7 +1171,7 @@ As a Primary Archivist, I want a domain vocabulary of estate-specific terms stor
 
 ---
 
-### US-058: Initialise the database from a seed script
+### US-060: Initialise the database from a seed script
 
 Derived from: UR-085
 
@@ -1161,11 +1185,13 @@ As a Primary Archivist, I want the database to be initialised from a seed script
 
 **Definition of done**: Running the seed script on a fresh database produces a non-empty vocabulary; the system is immediately useful without manual vocabulary entry.
 
+> **Note — hard blocking dependency**: The vocabulary schema and seed script content are defined by UR-085 and must be resolved by the Head of Development before this story can be implemented. Without the schema and seed content, neither the seed script nor the database initialisation can be written.
+
 **Phase**: Phase 1
 
 ---
 
-### US-059: Store each vocabulary term as a structured record
+### US-061: Store each vocabulary term as a structured record
 
 Derived from: UR-087
 
@@ -1183,7 +1209,7 @@ As a Primary Archivist, I want each vocabulary term stored as a structured recor
 
 ---
 
-### US-060: Add vocabulary terms manually via the curation web UI
+### US-062: Add vocabulary terms manually via the curation web UI
 
 Derived from: UR-088
 
@@ -1201,7 +1227,7 @@ As a Primary Archivist, I want to add vocabulary terms manually via the curation
 
 ---
 
-### US-061: Surface vocabulary candidates in the review queue after processing
+### US-063: Surface vocabulary candidates in the review queue after processing
 
 Derived from: UR-089, UR-090
 
@@ -1220,7 +1246,7 @@ As a Primary Archivist, I want candidate vocabulary terms to be proposed automat
 
 ---
 
-### US-062: Accepted vocabulary terms are independent of source documents
+### US-064: Accepted vocabulary terms are independent of source documents
 
 Derived from: UR-091
 
@@ -1237,7 +1263,7 @@ As a Primary Archivist, I want accepted vocabulary terms to persist independentl
 
 ---
 
-### US-063: Deduplicate vocabulary candidates by normalised comparison
+### US-065: Deduplicate vocabulary candidates by normalised comparison
 
 Derived from: UR-092, UR-093
 
@@ -1257,9 +1283,9 @@ As a Primary Archivist, I want near-identical candidate forms to be treated as t
 
 ---
 
-### US-064: Accept or reject a vocabulary candidate
+### US-066: Accept or reject a vocabulary candidate
 
-Derived from: UR-094
+Derived from: UR-092, UR-094
 
 As a Primary Archivist, I want to accept or reject each vocabulary candidate in the review queue so that I am the human gate for all vocabulary additions.
 
@@ -1268,7 +1294,7 @@ As a Primary Archivist, I want to accept or reject each vocabulary candidate in 
 - [ ] Each candidate in the vocabulary review queue can be accepted (adding it to the vocabulary) or rejected (adding it to the rejected list)
 - [ ] An accepted candidate becomes an active vocabulary term immediately
 - [ ] A rejected candidate is added to the rejected-terms list and will not resurface as a candidate
-- [ ] The rejected-terms list is stored in the database and persists across system restarts; it is not an in-memory structure that resets on restart
+- [ ] The rejected-terms list is stored in the database and persists across system restarts; it is not an in-memory structure that resets on restart (persistence requirement from UR-092; see also US-065)
 - [ ] If a candidate is accepted that matches a term already in the vocabulary (added after the candidate was raised), it is treated as a duplicate and silently ignored; no duplicate term is added to the vocabulary
 
 **Definition of done**: Accepting a candidate adds it to the vocabulary; rejecting it adds it to the database-persisted rejected list; neither action requires additional confirmation.
@@ -1277,7 +1303,7 @@ As a Primary Archivist, I want to accept or reject each vocabulary candidate in 
 
 ---
 
-### US-065: Editing and deleting accepted vocabulary terms (Phase 2)
+### US-067: Editing and deleting accepted vocabulary terms (Phase 2)
 
 Derived from: UR-095
 
@@ -1295,7 +1321,7 @@ As a Primary Archivist, I want to edit and delete accepted vocabulary terms via 
 
 ---
 
-### US-066: Family Member vocabulary management access (Phase 2)
+### US-068: Family Member vocabulary management access (Phase 2)
 
 Derived from: UR-096
 
@@ -1314,7 +1340,7 @@ As a Family Member, I want the same vocabulary management access as the Primary 
 
 ## 13. Query and Retrieval
 
-### US-067: Answer natural language questions via the CLI with citations
+### US-069: Answer natural language questions via the CLI with citations
 
 Derived from: UR-097, UR-098, UR-099, UR-100
 
@@ -1329,13 +1355,13 @@ As a Primary Archivist, I want to ask a natural language question via the CLI an
 - [ ] The system does not give legal advice or legal interpretation
 - [ ] Answers are grounded only in archived document content; no general knowledge or inference beyond document content is drawn upon
 
-**Definition of done**: Asking a question via the CLI returns an answer with citations; asking a question with no relevant documents returns an explicit "nothing found" response; responses contain no legal advice and no content sourced from outside the archive; a representative set of queries that could elicit legal interpretation (e.g. "do we have a right of way?") produces responses that describe document content only without legal conclusions.
+**Definition of done**: Asking a question via the CLI returns an answer with citations; asking a question with no relevant documents returns an explicit "nothing found" response; responses contain no legal advice and no content sourced from outside the archive; a representative set of queries that could elicit legal interpretation (e.g. "do we have a right of way?") is run manually and reviewed by the Primary Archivist; responses describe document content only without legal conclusions; the review outcome is recorded before the story is closed. Human review is the appropriate verification method for LLM behaviour; no automated test is expected.
 
 **Phase**: Phase 1
 
 ---
 
-### US-068: CLI query remains available at all phases
+### US-070: CLI query remains available at all phases
 
 Derived from: UR-101
 
@@ -1346,30 +1372,33 @@ As a Primary Archivist, I want the CLI query interface to remain available at al
 - [ ] The CLI query interface is not removed or deprecated when Phase 2 introduces web UI query
 - [ ] The CLI query interface continues to function at Phase 2 and Phase 3
 
-**Definition of done**: The CLI query command is functional and unchanged after Phase 2 deploys web UI query.
+**Definition of done**: The CLI query command is functional in Phase 1. A regression check is performed at Phase 2 delivery to confirm the CLI remains functional and unchanged after Phase 2 deploys web UI query.
 
 **Phase**: Phase 1
 
 ---
 
-### US-069: Natural language query only in Phase 1 and Phase 2
+### US-071: Natural language query only in Phase 1 and Phase 2
 
 Derived from: UR-102
 
-As a Primary Archivist, I want to understand that structured filtering (by date range, document type, or similar) is a Phase 3 feature so that Phase 1 and Phase 2 query is scoped to natural language only.
+As a Primary Archivist, I want the system to provide natural language query only, with no structured filtering options in Phase 1 or Phase 2, so that the query scope is clearly bounded until Phase 3.
+
+**Note**: This is a scope boundary constraint story. It documents what the system deliberately does not do in this phase, rather than a user capability. The acceptance criteria are the verifiable form of the constraint.
 
 **Acceptance criteria**
 
-- [ ] No structured filtering options are provided in Phase 1 or Phase 2
+- [ ] No structured filtering options are provided in Phase 1
+- [ ] No structured filtering options are introduced in Phase 2 — this criterion is verified at Phase 2 delivery as a regression check
 - [ ] All queries use natural language only
 
-**Definition of done**: Phase 1 and Phase 2 query interfaces accept natural language input only; no filter or facet options are present.
+**Definition of done**: The Phase 1 query interface accepts natural language input only; no filter or facet options are present. The Phase 2 regression check confirms no structured filtering was introduced at Phase 2 delivery.
 
 **Phase**: Phase 1
 
 ---
 
-### US-070: Page-level citation (future phase)
+### US-072: Page-level citation (future phase)
 
 Derived from: UR-103
 
@@ -1386,7 +1415,7 @@ As a Primary Archivist, I want citations to eventually reference specific pages 
 
 ---
 
-### US-071: Web UI query (Phase 2)
+### US-073: Web UI query (Phase 2)
 
 Derived from: UR-104
 
@@ -1403,7 +1432,7 @@ As a Primary Archivist or Family Member, I want a web UI query interface in Phas
 
 ---
 
-### US-072: Return original documents alongside query answers (Phase 2)
+### US-074: Return original documents alongside query answers (Phase 2)
 
 Derived from: UR-105
 
@@ -1420,7 +1449,7 @@ As a Primary Archivist or Family Member, I want original documents returned alon
 
 ---
 
-### US-073: Browse documents directly (Phase 2)
+### US-075: Browse documents directly (Phase 2)
 
 Derived from: UR-106
 
@@ -1437,7 +1466,7 @@ As a Primary Archivist or Family Member, I want to browse documents directly wit
 
 ---
 
-### US-074: Filter and facet search (Phase 3)
+### US-076: Filter and facet search (Phase 3)
 
 Derived from: UR-107
 
@@ -1454,7 +1483,7 @@ As a Primary Archivist, Family Member, or Occasional Contributor, I want to filt
 
 ---
 
-### US-075: Occasional Contributor query access (Phase 3)
+### US-077: Occasional Contributor query access (Phase 3)
 
 Derived from: UR-108
 
@@ -1473,7 +1502,7 @@ As an Occasional Contributor, I want to query the archive so that I can find inf
 
 ## 14. Curation Web UI
 
-### US-076: Provide a minimal curation web UI in Phase 1
+### US-078: Provide a minimal curation web UI in Phase 1
 
 Derived from: UR-109
 
@@ -1492,7 +1521,7 @@ As a Primary Archivist, I want a minimal curation web UI covering the document c
 
 ---
 
-### US-077: Document curation queue and vocabulary review queue are distinct views
+### US-079: Document curation queue and vocabulary review queue are distinct views
 
 Derived from: UR-110
 
@@ -1510,7 +1539,7 @@ As a Primary Archivist, I want the document curation queue and vocabulary review
 
 ---
 
-### US-078: View the document curation queue
+### US-080: View the document curation queue
 
 Derived from: UR-111
 
@@ -1518,10 +1547,10 @@ As a Primary Archivist, I want to view the document curation queue so that I can
 
 **Acceptance criteria**
 
-- [ ] The curation queue displays all flagged documents
+- [ ] The curation queue displays all flagged documents; "flagged" and "awaiting review" refer to the same state — there is no separate non-flagged awaiting-review queue state
 - [ ] Each entry shows at minimum the document description, date, flag reason, and submitter identity
 - [ ] The submitter identity is visible in the curation queue
-- [ ] The queue is ordered per US-055 (by flag timestamp ascending, tie-broken by natural database ordering)
+- [ ] The queue is ordered per US-057 (by flag timestamp ascending, tie-broken by natural database ordering)
 
 **Definition of done**: The curation queue lists all flagged documents with description, date, flag reason, and submitter identity visible; the order matches the defined sort order.
 
@@ -1529,7 +1558,7 @@ As a Primary Archivist, I want to view the document curation queue so that I can
 
 ---
 
-### US-079: Clear a flag via the curation UI
+### US-081: Clear a flag via the curation UI
 
 Derived from: UR-112
 
@@ -1538,7 +1567,7 @@ As a Primary Archivist, I want to clear a flag via the curation UI so that I can
 **Acceptance criteria**
 
 - [ ] The curation queue provides a clear-flag action for each flagged document
-- [ ] Clearing the flag marks the document ready to resume from the next incomplete step (per US-053)
+- [ ] Clearing the flag marks the document ready to resume from the next incomplete step (per US-055)
 - [ ] The document is removed from the flagged view after the flag is cleared
 
 **Definition of done**: Clicking clear flag on a document removes it from the flagged view and marks it ready to resume; the flag reason field is cleared.
@@ -1547,7 +1576,7 @@ As a Primary Archivist, I want to clear a flag via the curation UI so that I can
 
 ---
 
-### US-080: Correct document metadata via the curation UI
+### US-082: Correct document metadata via the curation UI
 
 Derived from: UR-113
 
@@ -1557,7 +1586,7 @@ As a Primary Archivist, I want to correct document metadata (type, date, people,
 
 - [ ] The curation UI allows editing of: document type, date, people, land references, and description
 - [ ] Corrected values are saved and reflected in subsequent display and citations
-- [ ] Metadata correction does not trigger re-embedding in Phase 1 (per US-042)
+- [ ] Metadata correction does not trigger re-embedding in Phase 1 (per US-043)
 
 **Definition of done**: Correcting a metadata field saves the new value; the updated value appears in citations and the curation queue on next display; no re-embedding is triggered.
 
@@ -1565,17 +1594,19 @@ As a Primary Archivist, I want to correct document metadata (type, date, people,
 
 ---
 
-### US-081: No in-application document removal in Phase 1 or Phase 2
+### US-083: No in-application document removal in Phase 1 or Phase 2
 
 Derived from: UR-114
 
-As a Primary Archivist, I want to understand that there is no in-application mechanism to remove, replace, or delete documents in Phase 1 or Phase 2 so that I know to act on storage directly for any removal needs.
+As a Primary Archivist, I want the system to provide no in-application mechanism to remove, replace, or delete documents in Phase 1 or Phase 2 so that I know to act on storage directly for any removal needs.
+
+**Note**: This is a scope boundary constraint story. It documents what the system deliberately does not do in this phase, rather than a user capability. The acceptance criteria are the verifiable form of the constraint.
 
 **Acceptance criteria**
 
 - [ ] No remove, replace, or delete document option is available in the web UI in Phase 1 or Phase 2
 - [ ] The Primary Archivist can remove documents out-of-band by acting on storage directly
-- [ ] Phase 3 introduces replace and delete as managed features (see US-093)
+- [ ] Phase 3 introduces replace and delete as managed features (see US-095)
 
 **Definition of done**: The Phase 1 and Phase 2 web UI contains no document removal capability; document deletion as a managed feature is deferred to Phase 3.
 
@@ -1583,7 +1614,7 @@ As a Primary Archivist, I want to understand that there is no in-application mec
 
 ---
 
-### US-082: Enhanced intake, curation, and vocabulary management UI (Phase 2)
+### US-084: Enhanced intake, curation, and vocabulary management UI (Phase 2)
 
 Derived from: UR-115
 
@@ -1593,8 +1624,7 @@ As a Primary Archivist or Family Member, I want an enhanced web UI for intake, c
 
 **Acceptance criteria**
 
-- [ ] Phase 2 enhances the intake form with additional fields and improved usability
-- [ ] Phase 2 enhances curation and vocabulary management UI
+- [ ] Enhanced intake, curation, and vocabulary management UI is implemented in Phase 2 as defined during Phase 2 scope definition
 
 **Definition of done**: This story is closed when it has been decomposed into specific testable Phase 2 stories during Phase 2 scope definition; no implementation is expected against this story directly.
 
@@ -1602,7 +1632,7 @@ As a Primary Archivist or Family Member, I want an enhanced web UI for intake, c
 
 ---
 
-### US-083: Family Member curation access (Phase 2)
+### US-085: Family Member curation access (Phase 2)
 
 Derived from: UR-116
 
@@ -1622,7 +1652,7 @@ As a Family Member, I want the same curation access as the Primary Archivist (ex
 
 ## 15. Web Application
 
-### US-084: Upload, curation, and vocabulary management in a single web application
+### US-086: Upload, curation, and vocabulary management in a single web application
 
 Derived from: UR-117, UR-118
 
@@ -1640,11 +1670,13 @@ As a Primary Archivist, I want document upload, curation, and vocabulary managem
 
 ---
 
-### US-085: Phase 1 designed for a single browser session at a time
+### US-087: Phase 1 designed for a single browser session at a time
 
 Derived from: UR-119
 
-As a Primary Archivist, I want to understand that Phase 1 is designed for a single browser session at a time so that I do not rely on concurrent session support.
+As a Primary Archivist, I want the Phase 1 application to support only a single browser session at a time so that I do not rely on concurrent session support that is not implemented.
+
+**Note**: This is a scope boundary constraint story. It documents what the system deliberately does not do in this phase, rather than a user capability. The acceptance criteria are the verifiable form of the constraint.
 
 **Acceptance criteria**
 
@@ -1659,7 +1691,7 @@ As a Primary Archivist, I want to understand that Phase 1 is designed for a sing
 
 ## 16. User Management and Access Control
 
-### US-086: Single user, no authentication in Phase 1
+### US-088: Single user, no authentication in Phase 1
 
 Derived from: UR-120, UR-121
 
@@ -1677,7 +1709,7 @@ As a Primary Archivist, I want Phase 1 to have a single user with no authenticat
 
 ---
 
-### US-087: No public or anonymous access at any phase
+### US-089: No public or anonymous access at any phase
 
 Derived from: UR-122
 
@@ -1694,7 +1726,7 @@ As a Primary Archivist, I want the system to be private at all phases with no pu
 
 ---
 
-### US-088: User authentication (Phase 2)
+### US-090: User authentication (Phase 2)
 
 Derived from: UR-123
 
@@ -1711,7 +1743,7 @@ As a Primary Archivist or Family Member, I want user authentication introduced i
 
 ---
 
-### US-089: Record submitter identity on every document from Phase 1
+### US-091: Record submitter identity on every document from Phase 1
 
 Derived from: UR-124, UR-125
 
@@ -1730,11 +1762,13 @@ As a Primary Archivist, I want submitter identity recorded on every document fro
 
 ---
 
-### US-090: User account management (Phase 3)
+### US-092: User account management (Phase 3)
 
 Derived from: UR-126, UR-130
 
 As a Primary Archivist, I want a System Administrator role introduced in Phase 3 so that infrastructure and user account management are separated from archival responsibilities.
+
+**Note**: This story is written from the Primary Archivist's perspective rather than the System Administrator's because the System Administrator role does not yet exist when this story is implemented — the story is about introducing that role. The Primary Archivist is the actor who benefits from the separation of responsibilities.
 
 **Acceptance criteria**
 
@@ -1748,7 +1782,7 @@ As a Primary Archivist, I want a System Administrator role introduced in Phase 3
 
 ---
 
-### US-091: Occasional Contributor access (Phase 3)
+### US-093: Occasional Contributor access (Phase 3)
 
 Derived from: UR-127, UR-128
 
@@ -1765,7 +1799,7 @@ As an Occasional Contributor, I want to submit documents and query the archive i
 
 ---
 
-### US-092: Document visibility scoping by user type (Phase 3)
+### US-094: Document visibility scoping by user type (Phase 3)
 
 Derived from: UR-129
 
@@ -1782,7 +1816,7 @@ As a System Administrator, I want document visibility scoped by user type in Pha
 
 ---
 
-### US-093: Replace and delete documents (Phase 3)
+### US-095: Replace and delete documents (Phase 3)
 
 Derived from: UR-131
 
@@ -1801,7 +1835,7 @@ As a user with appropriate permissions, I want to replace and delete documents a
 
 ## 17. Non-Functional Requirements
 
-### US-094: Abstract every external service via an interface
+### US-096: Abstract every external service via an interface
 
 Derived from: UR-132
 
@@ -1819,7 +1853,7 @@ As a Primary Archivist, I want every external service abstracted via an interfac
 
 ---
 
-### US-095: Read all configurable operational values from an external configuration file
+### US-097: Read all configurable operational values from an external configuration file
 
 Derived from: UR-133
 
@@ -1838,7 +1872,7 @@ As a Primary Archivist, I want all operational values (thresholds, file size lim
 
 ---
 
-### US-096: All error messages must be actionable
+### US-098: All error messages must be actionable
 
 Derived from: UR-134
 
@@ -1856,7 +1890,7 @@ As a Primary Archivist, I want every error message to state what went wrong and 
 
 ---
 
-### US-097: Regular database backups protect vocabulary data
+### US-099: Regular database backups protect vocabulary data
 
 Derived from: UR-135
 
@@ -1875,7 +1909,7 @@ As a Primary Archivist, I want regular database backups to protect vocabulary an
 
 ---
 
-### US-098: Phase 1 data model is minimal
+### US-100: Phase 1 data model is minimal
 
 Derived from: UR-136
 
@@ -1894,7 +1928,7 @@ As a Primary Archivist, I want the Phase 1 data model to contain only the fields
 
 ---
 
-### US-099: Data model supports adding fields at phase boundaries without destructive migrations
+### US-101: Data model supports adding fields at phase boundaries without destructive migrations
 
 Derived from: UR-137
 
@@ -1918,16 +1952,18 @@ The following stories contain requirements flagged for the Head of Development. 
 | Story | Requirement | Implication |
 | --- | --- | --- |
 | US-006 | UR-008 | Web UI upload atomicity mechanism |
+| US-009 | UR-012 | Storage mechanism for accepted files (file copy, reference, or other) |
 | US-012 | UR-017 | Bulk ingestion run atomicity and rollback |
 | US-022 | UR-035 | CLI mechanism for expressing a virtual document group |
 | US-015 | UR-025 | Whether output directory creation failure aborts the run |
-| US-040 | UR-057 | Format of the system-generated unique document identifier |
-| US-041 | UR-060 | Archive reference derivation rule |
-| US-043 | UR-062 | Embedding provider and model selection |
-| US-044 | UR-063 | AI agent used for semantic chunking and its operating model |
-| US-048 | UR-070 | Surface by which the manual processing trigger is exposed |
-| US-051 | UR-074 | Pipeline re-entrancy design and state tracking |
-| US-058 | UR-085 | Vocabulary schema and seed script content |
-| US-094 | UR-132 | Provider-agnostic interface pattern and runtime provider selection mechanism |
-| US-097 | UR-135 | Database backup strategy |
-| US-099 | UR-137 | Database migration strategy |
+| US-040 | UR-056 | Metadata fields assessed for completeness and the scoring method depend on what the extraction pipeline can reliably produce |
+| US-041 | UR-057 | Format of the system-generated unique document identifier |
+| US-042 | UR-060 | Archive reference derivation rule |
+| US-045 | UR-062 | Embedding provider and model selection |
+| US-046 | UR-063 | AI agent used for semantic chunking and its operating model |
+| US-050 | UR-070 | Surface by which the manual processing trigger is exposed |
+| US-053 | UR-074 | Pipeline re-entrancy design and state tracking |
+| US-060 | UR-085 | Vocabulary schema and seed script content |
+| US-096 | UR-132 | Provider-agnostic interface pattern and runtime provider selection mechanism |
+| US-099 | UR-135 | Database backup strategy |
+| US-101 | UR-137 | Database migration strategy |
