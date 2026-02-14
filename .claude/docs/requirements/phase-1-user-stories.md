@@ -57,8 +57,8 @@ As a Primary Archivist, I want to enter a date and description when uploading a 
 **Acceptance criteria**
 
 - [ ] The intake form contains a date field and a description field
-- [ ] Both fields are presented to the user before submission
-- [ ] Submission is not possible without engaging both fields (date is validated per US-003)
+- [ ] Both the date field and description field are visible and accessible before the submit action can be attempted
+- [ ] Submission is not possible unless the date field contains a valid date (per US-003) and the description field contains a non-empty string
 
 **Definition of done**: A submitted document has a date and description recorded in the metadata model.
 
@@ -75,7 +75,7 @@ As a Primary Archivist, I want the form to reject an empty or syntactically inva
 **Acceptance criteria**
 
 - [ ] Submitting the form with an empty date field is rejected and the user is prompted to correct it
-- [ ] Submitting the form with a syntactically invalid date (e.g. `32/13/1962`) is rejected and the user is prompted to correct it
+- [ ] Submitting the form with a syntactically invalid date (e.g. `1962-13-32`) is rejected and the user is prompted to correct it
 - [ ] The rejection is enforced client-side (immediate feedback) and server-side (authoritative check)
 - [ ] A valid date allows the form to proceed to submission
 
@@ -133,7 +133,7 @@ As a Primary Archivist, I want an interrupted upload to leave nothing stored so 
 **Acceptance criteria**
 
 - [ ] If a web UI upload is interrupted before completion, no record of the document is stored
-- [ ] A subsequent submission of the same document is treated as a fresh first submission
+- [ ] Re-submission behaviour following a failed or interrupted upload is covered by US-020
 - [ ] The mechanism for ensuring atomicity is determined at the architecture phase `[ARCHITECTURAL FLAG — for Head of Development]`
 
 **Definition of done**: An interrupted upload leaves the system in the same state as before the upload was attempted; no partial record exists.
@@ -231,7 +231,7 @@ As a Primary Archivist, I want the bulk ingestion run to halt if the source dire
 - [ ] The error message names each sub-directory found, not just a count
 - [ ] No files are processed when a sub-directory is detected
 
-**Definition of done**: A source directory containing sub-directories stops the run immediately; the summary report names each sub-directory found and zero counts are shown.
+**Definition of done**: A source directory containing sub-directories stops the run immediately; the summary report names each sub-directory found, shows zero counts, and no files are processed.
 
 **Phase**: Phase 1
 
@@ -260,7 +260,7 @@ As a Primary Archivist, I want an interrupted ingestion run to be rolled back so
 
 Derived from: UR-020
 
-As a Primary Archivist, I want to understand that running two bulk ingestion commands simultaneously is not supported in Phase 1 so that I do not rely on concurrent execution.
+The system does not implement concurrent run detection in Phase 1. This is a known limitation that is documented rather than enforced.
 
 **Acceptance criteria**
 
@@ -320,8 +320,8 @@ As a Primary Archivist, I want a summary report produced even when the source di
 **Acceptance criteria**
 
 - [ ] If the source directory is empty, the report is produced with zero counts and a note that no files were found
-- [ ] If the source directory contains files but none conform to the naming convention, the report is produced with zero accepted and a per-file rejection reason for each file
 - [ ] The report format is the same as for a normal run
+- [ ] The case where files are present but none conform to the naming convention is covered by US-010
 
 **Definition of done**: Running ingestion against an empty directory produces a report with zero counts and a note; no silent no-op occurs.
 
@@ -442,6 +442,7 @@ As a Primary Archivist, I want to submit multiple files as a single virtual docu
 - [ ] In Phase 1 grouping is available via bulk ingestion CLI only — web UI grouping is deferred to Phase 2
 - [ ] The group is processed as one logical unit throughout the pipeline
 - [ ] Query results reference the virtual document as a single unit, not as individual files
+- [ ] The CLI mechanism for expressing a group (flag, manifest file, or other) is an architectural decision `[ARCHITECTURAL FLAG — for Head of Development]`
 
 **Definition of done**: A multi-file virtual document group can be submitted via the bulk ingestion CLI, is processed as one unit, and appears as a single document in query results.
 
@@ -480,9 +481,9 @@ As a Primary Archivist, I want an option to validate every file in a group and r
 
 - [ ] Phase 2 introduces a per-request CLI flag to switch from fail-fast to try-all validation
 - [ ] Try-all validation reports all failures in a single pass
-- [ ] The default (without the flag) remains fail-fast
+- [ ] The default validation behaviour (fail-fast or try-all) is determined during Phase 2 implementation once both options are available
 
-**Definition of done**: Providing the try-all flag causes all files in the group to be validated and all failures reported before rejecting the group.
+**Definition of done**: Providing the try-all flag causes all files in the group to be validated and all failures reported before rejecting the group; fail-fast behaviour (US-023) continues to work; the default behaviour is confirmed during Phase 2 implementation.
 
 **Phase**: Phase 2
 
@@ -497,7 +498,7 @@ As a Primary Archivist, I want a group containing a single file to be valid and 
 **Acceptance criteria**
 
 - [ ] A group of one file passes group-level validation
-- [ ] It is processed by the same code path as a standalone submission
+- [ ] A group of one file is accepted, processed, and produces the same pipeline outcome as a standalone submission with the same file
 - [ ] There is no error or warning for a single-file group
 
 **Definition of done**: Submitting a group of one file succeeds and the file is processed as a standalone document with no group-specific errors.
@@ -552,6 +553,7 @@ As a Primary Archivist, I want text to be extracted from typed and printed docum
 **Acceptance criteria**
 
 - [ ] Text is extracted from Phase 1 document types (typewritten and printed documents; modern digital PDFs)
+- [ ] Text is extracted from image-format documents (TIFF, JPEG, PNG) submitted in Phase 1 using OCR
 - [ ] Extracted text is available to downstream pipeline steps
 
 **Definition of done**: A typed or printed document submitted in Phase 1 has its text extracted and passed to the next pipeline step.
@@ -604,8 +606,8 @@ As a Primary Archivist, I want all pages in a document to be evaluated regardles
 **Acceptance criteria**
 
 - [ ] Every page in a document is scored, regardless of the outcome of any other page
-- [ ] The flag reason lists all failing pages, not only the first
 - [ ] Evaluation does not stop early on the first failing page
+- [ ] Flag reason content requirements for failing pages are covered by US-035
 
 **Definition of done**: After extraction, all pages have scores; a document with multiple failing pages lists all of them in the flag reason.
 
@@ -718,6 +720,7 @@ As a Primary Archivist, I want the system to detect document type, dates, people
 - [ ] The system detects document type, dates, people, land references, and description from document content
 - [ ] If the system detects a description, it overwrites the description provided at intake
 - [ ] If the system does not detect a description, the intake description is preserved
+- [ ] When the system detects no value for a non-description metadata field, that field is stored as empty; the intake description is preserved per UR-052
 - [ ] The curator can correct any detected metadata field via the curation UI
 
 **Definition of done**: After processing, a document has system-detected values for all metadata fields the pipeline can produce; the system-generated description overwrites the intake description only when a description was detected; if no description was detected, the intake description is preserved.
@@ -756,8 +759,26 @@ As a Primary Archivist, I want a single flag with multiple reasons when both tex
 - [ ] When both thresholds fail on the same document, a single flag is raised
 - [ ] The flag reason includes the text quality failure (with failing pages) and the metadata completeness failure
 - [ ] Two separate flags are not raised
+- [ ] When only one threshold fails, a single flag is raised with one reason (not two flags, not a combined-failure flag)
 
 **Definition of done**: A document failing both thresholds has exactly one flag with both reasons recorded in the reason field.
+
+**Phase**: Phase 1
+
+---
+
+### US-039: Metadata completeness fields and scoring method (implementation decision)
+
+Derived from: UR-056
+
+As a Primary Archivist, I want the specific metadata fields assessed for completeness and the scoring method determined during implementation so that the assessment reflects the actual estate corpus and the capabilities of the chosen extraction tooling.
+
+**Acceptance criteria**
+
+- [ ] The metadata fields used in the completeness assessment are determined during implementation, informed by corpus analysis
+- [ ] The scoring method is determined during implementation, informed by the extraction tooling selected
+
+**Definition of done**: The implementer has defined which fields contribute to the completeness score and how the score is calculated, and has documented this decision before US-037 is closed.
 
 **Phase**: Phase 1
 
@@ -811,7 +832,7 @@ As a Primary Archivist, I want metadata corrections in Phase 1 to update the met
 
 - [ ] Correcting metadata via the curation UI updates the metadata fields
 - [ ] Re-embedding is not triggered in Phase 1
-- [ ] The document remains in the search index with its existing embeddings after a metadata correction
+- [ ] The document remains in the search index with its existing embeddings unchanged; corrected metadata fields are reflected in the document record and citations on next display
 
 **Definition of done**: Correcting a metadata field updates the stored value; no re-embedding is triggered; the document remains searchable.
 
@@ -869,7 +890,7 @@ As a Primary Archivist, I want chunk boundaries to be determined by an AI agent 
 - [ ] Fixed-size splitting is not used
 - [ ] The AI agent used for chunking and its operating model are architectural decisions `[ARCHITECTURAL FLAG — for Head of Development]`
 
-**Definition of done**: Chunk boundaries are reviewed against at least two sample documents of different types from the estate corpus and confirmed by the Primary Archivist to align with logical document units; no chunk boundary splits a meaningful unit arbitrarily.
+**Definition of done**: Chunk boundaries are reviewed against at least two Phase 1 document types (e.g. a typewritten document and a digital PDF) from the estate corpus and confirmed by the Primary Archivist to align with logical document units; no chunk boundary splits a meaningful unit arbitrarily.
 
 **Phase**: Phase 1
 
@@ -908,7 +929,7 @@ As a Primary Archivist, I want each pipeline step to record its own completion s
 - [ ] A step that ran successfully is marked complete even if its output failed a quality threshold
 - [ ] A step that failed due to a technical error is recorded as incomplete
 - [ ] Resumption starts from the first incomplete step, not from the beginning
-- [ ] Processing runs are triggered manually in Phase 1 (see US-048); there is no automatic retry between runs
+- [ ] Processing runs are triggered manually in Phase 1 (see US-048); there is no automatic retry between runs; this criterion cannot be fully verified until UR-070 is resolved by the Head of Development
 
 **Definition of done**: A document whose quality failed at extraction has the extraction step marked complete; on resumption, the pipeline skips completed steps and starts from the next incomplete step.
 
@@ -928,7 +949,7 @@ As a Primary Archivist, I want a step that fails due to a technical error to be 
 - [ ] The step is retried on the next processing run
 - [ ] A configurable retry limit prevents infinite retry loops
 - [ ] When the retry limit is exceeded, the document is flagged with the error reason and surfaced in the curation queue
-- [ ] Processing runs are triggered manually in Phase 1 (see US-048); there is no automatic retry between runs
+- [ ] Processing runs are triggered manually in Phase 1 (see US-048); there is no automatic retry between runs; this criterion cannot be fully verified until UR-070 is resolved by the Head of Development
 
 **Definition of done**: A document blocked by a recurring technical failure is flagged in the curation queue after the configured retry limit is reached; transient failures that resolve within the limit do not flag the document.
 
@@ -948,7 +969,7 @@ As a Primary Archivist, I want to trigger document processing manually in Phase 
 - [ ] The specific trigger surface is defined by UR-070 `[ARCHITECTURAL FLAG — for Head of Development]` and must be resolved before this story can be closed
 - [ ] Triggering processing does not automatically clear flags
 
-**Definition of done**: Processing does not start automatically in Phase 1; manual triggering is the only mechanism. This constraint is testable independently of the trigger surface. The story cannot be fully closed until UR-070 is resolved by the Head of Development and the trigger surface is implemented and tested.
+**Definition of done**: Processing does not start automatically in Phase 1; manual triggering is the only mechanism. The negative constraint (processing does not start automatically) is testable in Phase 1. The positive constraint (manual trigger invokes processing) cannot be fully verified until UR-070 is resolved by the Head of Development. The story cannot be fully closed until UR-070 is resolved and the trigger surface is implemented and tested.
 
 **Phase**: Phase 1
 
@@ -1001,7 +1022,6 @@ As a Primary Archivist, I want the processing pipeline to be re-entrant so that 
 
 - [ ] The pipeline design supports re-processing a document from any step without re-running completed steps unnecessarily `[ARCHITECTURAL FLAG — for Head of Development]`
 - [ ] Pipeline state is tracked in a way that supports this re-entrancy
-- [ ] The UI mechanism for clearing a flag is covered by US-079
 
 **Definition of done**: A document that has completed extraction but not embedding can be re-processed starting from the embedding step without re-running extraction; pipeline state is persisted across processing runs. The pipeline state tracking mechanism is defined by UR-074 `[ARCHITECTURAL FLAG — for Head of Development]` and must be resolved before this story can be closed.
 
@@ -1096,8 +1116,8 @@ As a Primary Archivist or Family Member, I want to attach human-provided text to
 **Acceptance criteria**
 
 - [ ] Phase 2 allows a curator to attach supplementary context text to a flagged document
+- [ ] Supplementary context text is combined with any extracted text and used as the input to the embedding step; it does not re-run text extraction; the document progresses from the embedding step onward
 - [ ] Supplementary context is embedded and searchable
-- [ ] Attaching supplementary context allows the document to progress through the pipeline
 - [ ] When a query draws on supplementary context, the citation identifies it as supplementary context added by the curator, not text extracted from the document
 - [ ] After supplementary context is attached and processing completes, the document appears in search results
 
@@ -1173,7 +1193,7 @@ As a Primary Archivist, I want to add vocabulary terms manually via the curation
 
 - [ ] The vocabulary management section of the web UI allows the archivist to add a new term
 - [ ] The form captures all required fields for the term record
-- [ ] The added term is immediately active in the vocabulary
+- [ ] The added term is stored in the vocabulary immediately; it is available to the extraction pipeline from the next processing run
 
 **Definition of done**: A term added manually via the UI appears in the vocabulary and is available to the extraction pipeline on the next processing run.
 
@@ -1249,6 +1269,7 @@ As a Primary Archivist, I want to accept or reject each vocabulary candidate in 
 - [ ] An accepted candidate becomes an active vocabulary term immediately
 - [ ] A rejected candidate is added to the rejected-terms list and will not resurface as a candidate
 - [ ] The rejected-terms list is stored in the database and persists across system restarts; it is not an in-memory structure that resets on restart
+- [ ] If a candidate is accepted that matches a term already in the vocabulary (added after the candidate was raised), it is treated as a duplicate and silently ignored; no duplicate term is added to the vocabulary
 
 **Definition of done**: Accepting a candidate adds it to the vocabulary; rejecting it adds it to the database-persisted rejected list; neither action requires additional confirmation.
 
@@ -1308,7 +1329,7 @@ As a Primary Archivist, I want to ask a natural language question via the CLI an
 - [ ] The system does not give legal advice or legal interpretation
 - [ ] Answers are grounded only in archived document content; no general knowledge or inference beyond document content is drawn upon
 
-**Definition of done**: Asking a question via the CLI returns an answer with citations; asking a question with no relevant documents returns an explicit "nothing found" response; responses contain no legal advice and no content sourced from outside the archive.
+**Definition of done**: Asking a question via the CLI returns an answer with citations; asking a question with no relevant documents returns an explicit "nothing found" response; responses contain no legal advice and no content sourced from outside the archive; a representative set of queries that could elicit legal interpretation (e.g. "do we have a right of way?") produces responses that describe document content only without legal conclusions.
 
 **Phase**: Phase 1
 
@@ -1376,7 +1397,7 @@ As a Primary Archivist or Family Member, I want a web UI query interface in Phas
 - [ ] Phase 2 provides a web UI for query in addition to the CLI
 - [ ] Query behaviour is identical via both interfaces
 
-**Definition of done**: A query submitted via the Phase 2 web UI returns the same results as the same query submitted via the CLI.
+**Definition of done**: A query submitted via the Phase 2 web UI retrieves the same underlying documents and produces a response of equivalent content to the same query submitted via the CLI; minor variation in synthesised wording and rendering differences between interfaces are acceptable.
 
 **Phase**: Phase 2
 
@@ -1497,7 +1518,7 @@ As a Primary Archivist, I want to view the document curation queue so that I can
 
 **Acceptance criteria**
 
-- [ ] The curation queue displays all documents awaiting review or flagged with issues
+- [ ] The curation queue displays all flagged documents
 - [ ] Each entry shows at minimum the document description, date, flag reason, and submitter identity
 - [ ] The submitter identity is visible in the curation queue
 - [ ] The queue is ordered per US-055 (by flag timestamp ascending, tie-broken by natural database ordering)
@@ -1568,12 +1589,14 @@ Derived from: UR-115
 
 As a Primary Archivist or Family Member, I want an enhanced web UI for intake, curation, and vocabulary management in Phase 2 so that the interface improves beyond the Phase 1 unpolished baseline.
 
+**Note**: This story is a Phase 2 scope placeholder. The specific enhancements are to be defined during Phase 2 scope definition. The acceptance criteria and DoD will be decomposed into specific testable stories before Phase 2 implementation begins.
+
 **Acceptance criteria**
 
 - [ ] Phase 2 enhances the intake form with additional fields and improved usability
 - [ ] Phase 2 enhances curation and vocabulary management UI
 
-**Definition of done**: Phase 2 UI enhancements are delivered and the intake form, curation, and vocabulary management views are improved compared with Phase 1.
+**Definition of done**: This story is closed when it has been decomposed into specific testable Phase 2 stories during Phase 2 scope definition; no implementation is expected against this story directly.
 
 **Phase**: Phase 2
 
@@ -1665,7 +1688,7 @@ As a Primary Archivist, I want the system to be private at all phases with no pu
 - [ ] No public or anonymous access is possible at any phase
 - [ ] Self-registration is not available at any phase
 
-**Definition of done**: The system has no public-facing access; all user access is controlled; self-registration is absent.
+**Definition of done**: In Phase 1, the system is local and single-user; no public-facing deployment is intended and no anonymous access is possible by design. From Phase 2, all user access is controlled via authentication and self-registration is absent.
 
 **Phase**: Phase 1
 
@@ -1697,7 +1720,7 @@ As a Primary Archivist, I want submitter identity recorded on every document fro
 **Acceptance criteria**
 
 - [ ] Every accepted document has a submitter identity field set at intake
-- [ ] In Phase 1, the submitter identity value is hardcoded to a fixed constant (e.g. 'Primary Archivist') at intake with no runtime selection; in Phase 2 this is replaced by the authenticated user identity
+- [ ] In Phase 1, the submitter identity value is set to a fixed value representing the Primary Archivist at intake with no runtime selection; in Phase 2 this is replaced by the authenticated user identity
 - [ ] Submitter identity is visible in the curation queue
 - [ ] Submitter identity is not shown in query results or document views
 
@@ -1839,6 +1862,8 @@ Derived from: UR-135
 
 As a Primary Archivist, I want regular database backups to protect vocabulary and archive data so that a database failure does not cause permanent data loss.
 
+**Note**: This story is a Head of Development deliverable. The implementer's responsibility is to confirm the strategy exists and is documented; no application code is required.
+
 **Acceptance criteria**
 
 - [ ] A database backup strategy is defined and in place `[ARCHITECTURAL FLAG — for Head of Development]`
@@ -1893,8 +1918,8 @@ The following stories contain requirements flagged for the Head of Development. 
 | Story | Requirement | Implication |
 | --- | --- | --- |
 | US-006 | UR-008 | Web UI upload atomicity mechanism |
-| US-009 | UR-017 | Storage mechanism for accepted files (file copy, reference, or other) |
 | US-012 | UR-017 | Bulk ingestion run atomicity and rollback |
+| US-022 | UR-035 | CLI mechanism for expressing a virtual document group |
 | US-015 | UR-025 | Whether output directory creation failure aborts the run |
 | US-040 | UR-057 | Format of the system-generated unique document identifier |
 | US-041 | UR-060 | Archive reference derivation rule |
