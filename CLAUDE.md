@@ -57,14 +57,22 @@ documentation/
 
 ## Agent and Skills Setup
 
-> **Immediate next step**: Write `.claude/skills/agent-file-conventions.md` — this is the prerequisite for all agent file creation and must exist before any `.claude/agents/*.md` files are written.
+See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup guide (24-step sequence, 6 unresolved questions UQ-001 to UQ-006).
 
-The `.claude/` directory structure and all agents and skills still need to be created. See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup guide, including:
+**Existing `.claude/` files (do not recreate):**
 
-- 8 agents to create (Product Owner, Head of Development, Integration Lead, Senior Developer × 2, Implementer, Pair Programmer, Code Reviewer, Project Manager)
-- 7 skills to create (in dependency order — `agent-file-conventions.md` first)
-- 6 unresolved questions to answer before coding begins (UQ-001 through UQ-006)
-- 24-step recommended implementation sequence
+- Skills: `agent-file-conventions.md`, `approval-workflow.md`, `overview-review-workflow.md`, `user-stories-review-workflow.md`
+- Agents: `product-owner.md`
+- Docs: `.claude/docs/requirements/user-requirements.md`, `.claude/docs/requirements/phase-1-user-stories.md`
+
+**Remaining to create:** Head of Development, Integration Lead, Senior Developer × 2, Implementer, Pair Programmer, Code Reviewer, Project Manager agents; `configuration-patterns.md` skill and 2 others.
+
+**Current next steps:**
+
+1. Developer approval of `phase-1-user-stories.md`
+2. Head of Development — resolve UQ-001 to UQ-006
+3. Write `.claude/skills/configuration-patterns.md` (informed by UQ-006 answer)
+4. Create remaining agent files
 
 ### Key Output Locations
 
