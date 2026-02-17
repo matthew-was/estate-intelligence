@@ -61,7 +61,7 @@ See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup 
 
 **Existing `.claude/` files (do not recreate):**
 
-- Skills: `agent-file-conventions.md`, `approval-workflow.md`, `overview-review-workflow.md`, `user-stories-review-workflow.md`
+- Skills: `agent-file-conventions.md`, `approval-workflow.md`, `notion-lab-entry.md`, `overview-review-workflow.md`, `user-stories-review-workflow.md`
 - Agents: `product-owner.md`
 - Docs: `.claude/docs/requirements/user-requirements.md`, `.claude/docs/requirements/phase-1-user-stories.md`
 
@@ -69,10 +69,9 @@ See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup 
 
 **Current next steps:**
 
-1. Developer approval of `phase-1-user-stories.md`
-2. Head of Development — resolve UQ-001 to UQ-006
-3. Write `.claude/skills/configuration-patterns.md` (informed by UQ-006 answer)
-4. Create remaining agent files
+1. Head of Development — resolve UQ-001 to UQ-006
+2. Write `.claude/skills/configuration-patterns.md` (informed by UQ-006 answer)
+3. Create remaining agent files
 
 ### Key Output Locations
 
