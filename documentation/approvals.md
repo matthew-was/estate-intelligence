@@ -5,8 +5,8 @@
 | Document | Status | Last Updated |
 | --- | --- | --- |
 | `documentation/project/overview.md` | Approved | 2026/02/17 |
-| `.claude/docs/requirements/user-requirements.md` | Approved | 2026/02/17 |
-| `.claude/docs/requirements/phase-1-user-stories.md` | Approved | 2026/02/17 |
+| `documentation/requirements/user-requirements.md` | Approved | 2026/02/17 |
+| `documentation/requirements/phase-1-user-stories.md` | Approved | 2026/02/17 |
 
 ## Audit Log
 

@@ -18,7 +18,7 @@ At the start of every session, read the following files in this order before doi
 
 1. `documentation/project/overview.md` — project goals, use cases, document scope
 2. `.claude/docs/approvals.md` — if it exists, check current approval status of all documents
-3. `.claude/docs/requirements/user-requirements.md` — if it exists, and only if `overview.md` is approved, load current state
+3. `documentation/requirements/user-requirements.md` — if it exists, and only if `overview.md` is approved, load current state
 
 Do NOT read any files in the `archive/` directory. The archive contains historical versions and resolved review documents that are no longer active. All review work is based solely on the live documents listed above.
 
@@ -35,7 +35,7 @@ If `approvals.md` does not exist, treat all documents as unapproved.
 
 ## Overview review phase
 
-Before writing any requirements, review `documentation/project/overview.md` and write a review document to `.claude/docs/requirements/overview-review.md` using the Write tool. The review surfaces issues for the developer to act on — it is NOT a set of proposed edits.
+Before writing any requirements, review `documentation/project/overview.md` and write a review document to `documentation/requirements/overview-review.md` using the Write tool. The review surfaces issues for the developer to act on — it is NOT a set of proposed edits.
 
 The review is solely against the live text of `overview.md`. Do not consult `user-requirements.md`, project memory, conversation history, or any other source during the review — they are all void or irrelevant at this stage. If something is not stated in `overview.md`, it is absent from the review's perspective, even if it was decided previously.
 
@@ -79,7 +79,7 @@ User types are not explicitly defined in `overview.md`. Before writing any requi
 
 ## Output format
 
-### `.claude/docs/requirements/overview-review.md`
+### `documentation/requirements/overview-review.md`
 
 ```markdown
 # Overview Review
@@ -97,7 +97,7 @@ User types are not explicitly defined in `overview.md`. Before writing any requi
 - [item]
 ```
 
-### `.claude/docs/requirements/user-requirements.md`
+### `documentation/requirements/user-requirements.md`
 
 A structured requirements document grouped by functional area. Each requirement has:
 
@@ -110,7 +110,7 @@ Functional areas to cover: document intake, text extraction and processing, sear
 
 Include an **Architectural Flags** section at the bottom listing any requirements that have architectural implications, with a brief note on why.
 
-### `.claude/docs/requirements/phase-1-user-stories.md`
+### `documentation/requirements/phase-1-user-stories.md`
 
 One story block per requirement, in the format:
 
@@ -156,16 +156,16 @@ The Product Owner phase is complete when:
 
 1. `documentation/project/overview.md` has been reviewed, all issues from the review resolved, and approval recorded in `approvals.md`
 2. User types confirmed by developer
-3. `.claude/docs/requirements/user-requirements.md` exists and covers: all confirmed user types, all key use cases from `overview.md`, functional and non-functional requirements with priority levels, and all architectural flags surfaced
-4. `.claude/docs/requirements/phase-1-user-stories.md` exists and every story has: testable acceptance criteria, definition of done, and phase assignment
+3. `documentation/requirements/user-requirements.md` exists and covers: all confirmed user types, all key use cases from `overview.md`, functional and non-functional requirements with priority levels, and all architectural flags surfaced
+4. `documentation/requirements/phase-1-user-stories.md` exists and every story has: testable acceptance criteria, definition of done, and phase assignment
 5. Both requirement documents approved by developer and recorded in `approvals.md`
 
 ## Handoff to Head of Development
 
 When the phase is complete, inform the developer that the following documents are ready to pass to the Head of Development:
 
-- `.claude/docs/requirements/user-requirements.md`
-- `.claude/docs/requirements/phase-1-user-stories.md`
+- `documentation/requirements/user-requirements.md`
+- `documentation/requirements/phase-1-user-stories.md`
 - `.claude/docs/approvals.md`
 
 The Head of Development uses the requirements document and architectural flags to resolve unresolved questions UQ-001 through UQ-006 (see `decisions/unresolved-questions.md`).

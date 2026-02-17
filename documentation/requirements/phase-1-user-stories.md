@@ -1,6 +1,6 @@
 # Phase 1 User Stories
 
-Derived from: `.claude/docs/requirements/user-requirements.md` (approved 2026-02-17).
+Derived from: `documentation/requirements/user-requirements.md` (approved 2026-02-17).
 Covers all 138 requirements (UR-001 to UR-138).
 Stories are assigned to Phase 1, Phase 2, Phase 3, or Phase Future based on the priority and phase assignment in the requirements document. Phase Future = no phase assigned yet; no implementation expected until a specific phase is assigned.
 

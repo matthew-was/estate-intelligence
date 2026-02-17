@@ -50,7 +50,9 @@ documentation/
 ├── project/                      ← Overview, architecture, pipeline diagram, domain context
 ├── components/                   ← Per-component specs, quick refs, design rationale
 ├── process/                      ← Agent workflow, skills catalogue, dev principles
-└── decisions/                    ← ADRs and unresolved questions
+├── requirements/                 ← User requirements, user stories, approvals
+├── decisions/                    ← ADRs and unresolved questions
+└── tasks/                        ← Project Manager task lists per component
 ```
 
 ---
@@ -63,7 +65,6 @@ See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup 
 
 - Skills: `agent-file-conventions.md`, `approval-workflow.md`, `notion-lab-entry.md`, `overview-review-workflow.md`, `user-stories-review-workflow.md`
 - Agents: `product-owner.md`
-- Docs: `.claude/docs/requirements/user-requirements.md`, `.claude/docs/requirements/phase-1-user-stories.md`
 
 **Remaining to create:** Head of Development, Integration Lead, Senior Developer × 2, Implementer, Pair Programmer, Code Reviewer, Project Manager agents; `configuration-patterns.md` skill and 2 others.
 
@@ -78,7 +79,7 @@ See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup 
 As agents complete their phases, outputs are written here:
 
 ```text
-.claude/docs/
+documentation/
 ├── requirements/
 │   ├── user-requirements.md       ← Product Owner (Step 1) — authoritative scope baseline
 │   └── phase-1-user-stories.md    ← Product Owner (Step 2)

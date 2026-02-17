@@ -38,6 +38,14 @@ All design and process documentation for the Estate Intelligence project. Start 
 
 → [decisions/unresolved-questions.md](decisions/unresolved-questions.md) — Blocking and non-blocking open questions
 
+### If you want to read the requirements and user stories
+
+→ [requirements/user-requirements.md](requirements/user-requirements.md) — Authoritative scope: 138 requirements across all phases
+
+→ [requirements/phase-1-user-stories.md](requirements/phase-1-user-stories.md) — 101 user stories covering Phase 1 requirements
+
+→ [approvals.md](approvals.md) — Approval status of all scope documents
+
 ### If you are setting up Claude agents and skills
 
 → [SUMMARY.md](SUMMARY.md) — What was done + step-by-step guide to set up `.claude/` directory
@@ -76,6 +84,9 @@ All design and process documentation for the Estate Intelligence project. Start 
 | components/component-2-processing-and-embedding/quick-reference.md | Current | |
 | components/component-3-query-retrieval/README.md | Placeholder | Design pending after C1+C2 complete |
 | components/component-4-continuous-ingestion/README.md | Placeholder | Design pending last |
+| requirements/user-requirements.md | Current | 138 requirements (UR-001 to UR-138), approved 2026-02-17 |
+| requirements/phase-1-user-stories.md | Current | 101 stories covering all requirements, approved 2026-02-17 |
+| approvals.md | Current | Approval tracking for all scope documents |
 | process/agent-workflow.md | Current | 8 agents defined |
 | process/skills-catalogue.md | Current | 6 skills identified, none written yet |
 | process/development-principles.md | Current | |
