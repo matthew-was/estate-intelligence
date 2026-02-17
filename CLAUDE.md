@@ -51,15 +51,16 @@ documentation/
 ├── components/                   ← Per-component specs, quick refs, design rationale
 ├── process/                      ← Agent workflow, skills catalogue, dev principles
 ├── requirements/                 ← User requirements, user stories, approvals
-├── decisions/                    ← ADRs and unresolved questions
-└── tasks/                        ← Project Manager task lists per component
+├── tasks/                        ← Project Manager task lists per component
+└── previous documentation to be reviewed/
+    └── decisions/unresolved-questions.md ← Unresolved questions (note: may be outdated; review against current overview.md)
 ```
 
 ---
 
 ## Agent and Skills Setup
 
-See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup guide (24-step sequence, 6 unresolved questions UQ-001 to UQ-006).
+See [documentation/SUMMARY.md](documentation/SUMMARY.md) for the complete setup guide (24-step sequence, 6 unresolved questions UQ-001 to UQ-006). Note: unresolved questions are at `documentation/previous documentation to be reviewed/decisions/unresolved-questions.md` and may be outdated relative to the current overview.md; review them against the current scope before proceeding.
 
 **Existing `.claude/` files (do not recreate):**
 

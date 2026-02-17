@@ -168,4 +168,4 @@ When the phase is complete, inform the developer that the following documents ar
 - `documentation/requirements/phase-1-user-stories.md`
 - `.claude/docs/approvals.md`
 
-The Head of Development uses the requirements document and architectural flags to resolve unresolved questions UQ-001 through UQ-006 (see `decisions/unresolved-questions.md`).
+The Head of Development uses the requirements document and architectural flags to resolve unresolved questions UQ-001 through UQ-006 (see `documentation/previous documentation to be reviewed/decisions/unresolved-questions.md`). Note: these questions may be outdated relative to the current scope; review them against the approved overview.md and user requirements before proceeding.
