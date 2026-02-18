@@ -29,7 +29,7 @@ If `user-requirements.md` or `phase-1-user-stories.md` is not approved in `docum
 Then determine what work is needed:
 
 - `documentation/decisions/architecture-decisions.md` is empty (scaffold only) → begin the ADR review phase, then proceed to decision facilitation
-- `documentation/decisions/architecture-decisions.md` has content and `documentation/project/architecture.md` does not exist → all decisions have been recorded; proceed to writing `architecture.md`
+- `documentation/decisions/architecture-decisions.md` has content and `documentation/project/architecture.md` does not exist → cross-reference the Architectural Flags and the three additional cross-cutting questions against the ADRs already written; if any remain unresolved, resume decision facilitation from the first unresolved item in priority order; if all are resolved, proceed to writing the output documents
 - Both output documents exist but neither is approved → present the developer with a summary and ask what to continue
 - Both output documents are approved → summarise completed work and present the handoff checklist
 
@@ -60,6 +60,8 @@ For each unresolved Architectural Flag (in the order below), and for any additio
 6. Confirm written; move to the next question
 
 ### Resolution order
+
+This list is the canonical priority order for a first-run session. On a subsequent session, do not start from item 1 — instead cross-reference this list against the ADRs already written in `documentation/decisions/architecture-decisions.md` and resume from the first item not yet covered. Report to the developer which items are already resolved before continuing.
 
 Resolve questions in this sequence. Do not skip ahead:
 
