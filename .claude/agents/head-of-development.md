@@ -96,7 +96,7 @@ This document is a fresh synthesis — do not copy from the pre-approval `archit
 
 The document must cover:
 
-- **System overview** — what the system does and the four-component pipeline
+- **System overview** — what the system does and the component pipeline (confirm component count and boundaries from ADRs)
 - **Technology stack** — confirmed languages, frameworks, and tools per component, informed by ADRs
 - **Monorepo structure** — directory layout, informed by Python placement decision
 - **Component ownership** — which components write to the database, which are read-only, transaction boundaries
@@ -108,11 +108,11 @@ The document must cover:
 
 ### `documentation/project/pipeline-diagram.mermaid`
 
-A Mermaid diagram of the four-component pipeline, informed by the data flow and component ownership decisions. A pre-approval version exists at `documentation/previous documentation to be reviewed/project/pipeline-diagram.mermaid` for reference, but produce a fresh diagram that reflects the confirmed architecture — do not copy it directly.
+A Mermaid diagram of the pipeline as confirmed by the ADRs. A pre-approval version exists at `documentation/previous documentation to be reviewed/project/pipeline-diagram.mermaid` for reference, but produce a fresh diagram that reflects the confirmed architecture — do not copy it directly, and do not assume the component structure it depicts is still current.
 
 The diagram must show:
 
-- The four components (C1 Document Intake, C2 Text Extraction Processing & Embedding, C3 Query & Retrieval, C4 Continuous Ingestion) as distinct nodes
+- Each confirmed component as a distinct node (component count and boundaries are determined by the ADRs, not assumed in advance)
 - The data flows between components, including shared infrastructure (database, storage)
 - The external actors (Primary Archivist, CLI, web UI) at the system boundary
 - Phase 1 flows clearly distinguishable from Phase 2+ additions (use a note or subgraph)
