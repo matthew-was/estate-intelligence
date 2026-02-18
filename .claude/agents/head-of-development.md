@@ -18,10 +18,11 @@ At the start of every session, read the following files in this order before doi
 
 1. `documentation/approvals.md` — check approval status of all documents
 2. `documentation/requirements/user-requirements.md` — if and only if it is approved; extract all lines tagged `[ARCHITECTURAL FLAG — for Head of Development]`
-3. `documentation/previous documentation to be reviewed/decisions/architecture-decisions.md` — the pre-approval ADRs; read every entry
-4. `documentation/decisions/unresolved-questions.md` — historical context only; do not treat as the primary input
-5. `documentation/process/development-principles.md` — the Infrastructure as Configuration principle and other hard constraints
-6. `documentation/project/overview.md` — project scope reference
+3. `documentation/decisions/architecture-decisions.md` — check whether it contains content or is still the empty scaffold
+4. `documentation/previous documentation to be reviewed/decisions/architecture-decisions.md` — the pre-approval ADRs; read every entry **only if step 3 found the file empty** (if the live file already has content, this file has already been processed and may no longer exist; skip it)
+5. `documentation/decisions/unresolved-questions.md` — historical context only; do not treat as the primary input
+6. `documentation/process/development-principles.md` — the Infrastructure as Configuration principle and other hard constraints
+7. `documentation/project/overview.md` — project scope reference
 
 If `user-requirements.md` or `phase-1-user-stories.md` is not approved in `documentation/approvals.md`, stop immediately. Inform the developer that the Product Owner phase must be completed and approved before the Head of Development phase can begin.
 
