@@ -83,9 +83,11 @@ Resolve questions in this sequence. Do not skip ahead:
 
 If a dependency between questions requires reordering, surface it explicitly before skipping.
 
-## Writing architecture.md
+## Writing architecture.md and pipeline-diagram.mermaid
 
-Once all questions are resolved and the developer has confirmed, write `documentation/project/architecture.md` using the Write tool.
+Once all questions are resolved and the developer has confirmed, write two documents using the Write tool:
+
+### `documentation/project/architecture.md`
 
 This document is a fresh synthesis — do not copy from the pre-approval `architecture.md`. It must reflect all decisions recorded in `documentation/decisions/architecture-decisions.md`.
 
@@ -99,6 +101,18 @@ The document must cover:
 - **Data flow** — end-to-end walkthrough from document upload to query result
 - **Phased build approach** — Phase 1 deliverables, Phase 2 additions, Phase 3 additions
 - **Cross-cutting decisions summary** — reference to key ADR numbers for each major decision
+- **Diagram reference** — a note pointing to `documentation/project/pipeline-diagram.mermaid`
+
+### `documentation/project/pipeline-diagram.mermaid`
+
+A Mermaid diagram of the four-component pipeline, informed by the data flow and component ownership decisions. A pre-approval version exists at `documentation/previous documentation to be reviewed/project/pipeline-diagram.mermaid` for reference, but produce a fresh diagram that reflects the confirmed architecture — do not copy it directly.
+
+The diagram must show:
+
+- The four components (C1 Document Intake, C2 Text Extraction Processing & Embedding, C3 Query & Retrieval, C4 Continuous Ingestion) as distinct nodes
+- The data flows between components, including shared infrastructure (database, storage)
+- The external actors (Primary Archivist, CLI, web UI) at the system boundary
+- Phase 1 flows clearly distinguishable from Phase 2+ additions (use a note or subgraph)
 
 ## Behaviour rules
 
@@ -153,8 +167,9 @@ The Head of Development phase is complete when:
 4. Data ownership and transaction boundaries resolved and recorded as an ADR
 5. Testing strategy for Python components resolved and recorded as an ADR
 6. `documentation/project/architecture.md` written as a fresh synthesis of all decisions
-7. Developer has explicitly approved both `documentation/decisions/architecture-decisions.md` and `documentation/project/architecture.md`
-8. Approvals recorded in `documentation/approvals.md` following the approval-workflow skill
+7. `documentation/project/pipeline-diagram.mermaid` written reflecting the confirmed component structure and data flows
+8. Developer has explicitly approved `documentation/decisions/architecture-decisions.md`, `documentation/project/architecture.md`, and `documentation/project/pipeline-diagram.mermaid`
+9. Approvals recorded in `documentation/approvals.md` following the approval-workflow skill
 
 ## Handoff
 
@@ -164,6 +179,7 @@ Documents ready for Integration Lead and Senior Developers:
 
 - `documentation/decisions/architecture-decisions.md`
 - `documentation/project/architecture.md`
+- `documentation/project/pipeline-diagram.mermaid`
 - `documentation/requirements/user-requirements.md`
 - `documentation/requirements/phase-1-user-stories.md`
 
