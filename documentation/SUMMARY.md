@@ -12,10 +12,10 @@ All external documents that were used as source material during documentation re
 
 Key findings:
 
-- Components 1 and 2 are fully specified and ready for Phase 1 implementation
 - The agent workflow design (in `working-with-claude.md`) was complete but had no `.claude/` directory to make it operational
 - A combined C2+C3 overview document signalled that the original 5-component design had evolved to 4 components
 - Critical unresolved questions were mixed into a workflow document rather than tracked as blockers
+- Pre-approval component specs (C1–C4) have been archived to `archive/previous-documentation/components/` — they pre-date the Head of Development review and contain architectural assumptions not yet decided; Senior Developers will produce new specs after the Head of Development phase
 
 ### Component Renumbering
 
@@ -47,21 +47,17 @@ New files synthesised:
 
 - `documentation/README.md` — navigation index
 - `project/domain-context.md` — living estate terminology document
-- `components/component-1-document-intake/quick-reference.md` — synthesised from C1 spec
-- `components/component-3-query-retrieval/README.md` — design brief with open questions
-- `components/component-4-continuous-ingestion/README.md` — design brief with open questions
 - `process/development-principles.md` — synthesised from all design documents
-- `decisions/architecture-decisions.md` — all ADRs consolidated
-- `decisions/unresolved-questions.md` — all open questions consolidated
+- `decisions/unresolved-questions.md` — all open questions consolidated (reference copy; Head of Development works from Architectural Flags in `user-requirements.md`)
 
 ### Current Implementation Status
 
 | Component | Design | Implementation |
 | --- | --- | --- |
-| Component 1: Document Intake | Phase 1 complete | Not started |
-| Component 2: Processing & Embedding | Phase 1 complete | Not started |
-| Component 3: Query & Retrieval | Design brief ready | Not started |
-| Component 4: Continuous Ingestion | Placeholder (Phase 2+) | Not started |
+| Component 1: Document Intake | Pending Head of Development | Not started |
+| Component 2: Processing & Embedding | Pending Head of Development | Not started |
+| Component 3: Query & Retrieval | Pending | Not started |
+| Component 4: Continuous Ingestion | Phase 2+ placeholder | Not started |
 
 ---
 
@@ -352,19 +348,19 @@ This sequence minimises rework by resolving dependencies before they block work.
 
 **Step 1**: Write `agent-file-conventions.md` skill — defines what a well-formed agent file looks like. Prerequisite for all agent creation.
 
-**Step 2**: Product Owner agent — finalise project scope. Produce a user requirements document covering all known use cases, user types, and non-functional requirements. Output: `.claude/docs/requirements/user-requirements.md`
+**Step 2**: Product Owner agent — finalise project scope. Output: `documentation/requirements/user-requirements.md` ✓ Complete (approved 2026-02-17)
 
-**Step 3**: Product Owner agent — formalise Phase 1 user stories from [project/overview.md](project/overview.md) and the user requirements document → `.claude/docs/requirements/phase-1-user-stories.md`
+**Step 3**: Product Owner agent — formalise Phase 1 user stories. Output: `documentation/requirements/phase-1-user-stories.md` ✓ Complete (approved 2026-02-17)
 
-**Step 4**: Use Head of Development agent to work through UQ-001, UQ-002, UQ-003, UQ-005, UQ-006 (informed by the user requirements document from Step 2)
+**Step 4**: Head of Development agent — resolve Architectural Flags from `user-requirements.md`; produce `documentation/decisions/architecture-decisions.md` and `documentation/project/architecture.md`
 
-**Step 5**: Write `configuration-patterns.md` skill (using Component 1 StorageService as first example; informed by UQ-006 answer)
+**Step 5**: Write `configuration-patterns.md` skill (informed by Python placement ADR and UR-133 decision from Step 4)
 
-**Step 6**: Write `metadata-schema.md` skill (informed by Step 4 answers)
+**Step 6**: Write `metadata-schema.md` skill (informed by UR-057/061/086/138 decisions from Step 4)
 
-**Step 7**: Write `pipeline-testing-strategy.md` skill
+**Step 7**: Write `pipeline-testing-strategy.md` skill (informed by testing strategy decision from Step 4)
 
-**Step 8**: Set up Integration Lead agent. Its first task: review C1 + C2 specs for data access compliance; answer UQ-001 and UQ-005 formally.
+**Step 8**: Set up Integration Lead agent. Its first task: work with Senior Developers on component specifications and data access contracts.
 
 ### Component 1 Implementation
 

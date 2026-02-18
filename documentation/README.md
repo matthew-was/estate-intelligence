@@ -16,23 +16,9 @@ All design and process documentation for the Estate Intelligence project. Start 
 
 → [project/pipeline-diagram.mermaid](project/pipeline-diagram.mermaid) — Visual pipeline diagram
 
-### If you want to implement a component
-
-→ [components/component-1-document-intake/specification.md](components/component-1-document-intake/specification.md) — Full Phase 1 spec
-
-→ [components/component-1-document-intake/quick-reference.md](components/component-1-document-intake/quick-reference.md) — Upload flow, DB schema, API at a glance
-
-→ [components/component-2-processing-and-embedding/overview.md](components/component-2-processing-and-embedding/overview.md) — High-level overview of both extraction and embedding stages
-
-→ [components/component-2-processing-and-embedding/specification.md](components/component-2-processing-and-embedding/specification.md) — Full detailed spec
-
-→ [components/component-2-processing-and-embedding/quick-reference.md](components/component-2-processing-and-embedding/quick-reference.md) — Tables and checklists at a glance
-
 ### If you want to understand why a decision was made
 
-→ [components/component-2-processing-and-embedding/design-rationale.md](components/component-2-processing-and-embedding/design-rationale.md) — Component 2 design journey and reasoning
-
-→ [decisions/architecture-decisions.md](decisions/architecture-decisions.md) — All ADRs across the project
+→ [decisions/architecture-decisions.md](decisions/architecture-decisions.md) — All ADRs across the project (populated by Head of Development agent)
 
 ### If you want to know what questions are still open
 
@@ -54,12 +40,6 @@ All design and process documentation for the Estate Intelligence project. Start 
 
 → [process/skills-catalogue.md](process/skills-catalogue.md) — All identified skills with creation order
 
-### If you are designing a component not yet specified
-
-→ [components/component-3-query-retrieval/README.md](components/component-3-query-retrieval/README.md) — Design brief with open questions
-
-→ [components/component-4-continuous-ingestion/README.md](components/component-4-continuous-ingestion/README.md) — Design brief with open questions
-
 ### If you are working with estate terminology
 
 → [project/domain-context.md](project/domain-context.md) — Living document: approved terms, field names, people, candidates
@@ -70,28 +50,19 @@ All design and process documentation for the Estate Intelligence project. Start 
 
 | Document | Status | Notes |
 | --- | --- | --- |
-| project/overview.md | Current | Rewritten as scope document |
+| project/overview.md | Current | Rewritten as scope document; approved 2026-02-17 |
 | project/developer-context.md | Current | Developer background and environment |
-| project/architecture.md | Current | 4-component structure |
+| project/architecture.md | Pending | Written by Head of Development agent |
 | project/pipeline-diagram.mermaid | Current | Updated for 4 components |
 | project/domain-context.md | Living document | Populate as documents are processed |
-| components/component-1-document-intake/specification.md | Current | Phase 1 ready to implement |
-| components/component-1-document-intake/quick-reference.md | Current | |
-| components/component-2-processing-and-embedding/overview.md | Current | Combined C2+C3 design |
-| components/component-2-processing-and-embedding/specification.md | Current | Phase 1 ready to implement |
-| components/component-2-processing-and-embedding/design-rationale.md | Current | |
-| components/component-2-processing-and-embedding/readiness-checklist.md | Current | |
-| components/component-2-processing-and-embedding/quick-reference.md | Current | |
-| components/component-3-query-retrieval/README.md | Placeholder | Design pending after C1+C2 complete |
-| components/component-4-continuous-ingestion/README.md | Placeholder | Design pending last |
-| requirements/user-requirements.md | Current | 138 requirements (UR-001 to UR-138), approved 2026-02-17 |
-| requirements/phase-1-user-stories.md | Current | 101 stories covering all requirements, approved 2026-02-17 |
+| decisions/architecture-decisions.md | Pending | Populated by Head of Development agent |
+| decisions/unresolved-questions.md | Reference copy | Historical context; primary input is user-requirements.md Architectural Flags |
+| requirements/user-requirements.md | Current | 138 requirements (UR-001 to UR-138); approved 2026-02-17 |
+| requirements/phase-1-user-stories.md | Current | 101 stories covering all requirements; approved 2026-02-17 |
 | approvals.md | Current | Approval tracking for all scope documents |
 | process/agent-workflow.md | Current | 8 agents defined |
-| process/skills-catalogue.md | Current | 6 skills identified, none written yet |
+| process/skills-catalogue.md | Current | Skills identified; 3 needed before Senior Developers |
 | process/development-principles.md | Current | |
-| decisions/architecture-decisions.md | Current | All ADRs from design phase |
-| decisions/unresolved-questions.md | Current | Update as questions are resolved |
 | SUMMARY.md | Current | .claude/ setup guide |
 
 ---

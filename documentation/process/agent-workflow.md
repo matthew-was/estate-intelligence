@@ -28,9 +28,9 @@ Agents have no memory between sessions. Each conversation starts fresh. To re-es
 | Agent | Pass these documents |
 | --- | --- |
 | Product Owner | [project/overview.md](../project/overview.md) |
-| Head of Development | [project/architecture.md](../project/architecture.md), `.claude/docs/requirements/user-requirements.md`, [decisions/unresolved-questions.md](../decisions/unresolved-questions.md) |
-| Integration Lead | All component specs, `.claude/docs/requirements/user-requirements.md`, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md) |
-| Senior Developer | Component specification, `.claude/docs/requirements/phase-1-user-stories.md`, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md), Integration Lead contracts |
+| Head of Development | `documentation/requirements/user-requirements.md`, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md), [decisions/unresolved-questions.md](../decisions/unresolved-questions.md), [process/development-principles.md](development-principles.md) |
+| Integration Lead | `documentation/requirements/user-requirements.md`, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md), [project/architecture.md](../project/architecture.md), component specifications (written by Senior Developers) |
+| Senior Developer | Component specification (written by this agent), `documentation/requirements/phase-1-user-stories.md`, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md), Integration Lead contracts |
 | Project Manager | Senior Developer implementation plan |
 | Implementer / Pair Programmer | Project Manager task list, component specification |
 | Code Reviewer | Code under review, original implementation plan, [decisions/architecture-decisions.md](../decisions/architecture-decisions.md) |
@@ -108,10 +108,10 @@ The project grew from informal design conversations scattered across multiple ch
 
 **Definition of done — Head of Development phase**: The Head of Development phase is complete when:
 
-1. UQ-001, UQ-002, UQ-003, and UQ-005 are answered and recorded in [decisions/unresolved-questions.md](../decisions/unresolved-questions.md)
-2. Any architectural flags raised by the Product Owner are resolved as ADRs
-3. The architecture document reflects all decisions made
-4. The developer has reviewed and approved the decisions
+1. All 15 Architectural Flags from `user-requirements.md` are covered by an existing or new ADR
+2. Python placement, data ownership, and testing strategy questions are resolved as ADRs
+3. `documentation/decisions/architecture-decisions.md` is approved by the developer
+4. `documentation/project/architecture.md` is written as a fresh synthesis and approved by the developer
 
 **Handoff to Senior Developer**: Pass the updated architecture decisions and resolved unresolved questions. The Senior Developer uses these as constraints when writing the implementation plan.
 
@@ -178,8 +178,10 @@ The project grew from informal design conversations scattered across multiple ch
 
 **Component-specific instances**:
 
-- `.claude/agents/senior-developer-component-1.md` — scoped to [component-1-document-intake/specification.md](../components/component-1-document-intake/specification.md)
-- `.claude/agents/senior-developer-component-2.md` — scoped to all [component-2-processing-and-embedding/](../components/component-2-processing-and-embedding/) documents
+- `.claude/agents/senior-developer-component-1.md` — scoped to Component 1; produces its own specification document
+- `.claude/agents/senior-developer-component-2.md` — scoped to Component 2; produces its own specification document
+
+Pre-approval component specs are archived at `archive/previous-documentation/components/` for reference; Senior Developers write new specs informed by the approved architecture and requirements.
 
 ---
 

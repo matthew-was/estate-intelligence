@@ -7,6 +7,8 @@
 | `documentation/project/overview.md` | Approved | 2026/02/17 |
 | `documentation/requirements/user-requirements.md` | Approved | 2026/02/17 |
 | `documentation/requirements/phase-1-user-stories.md` | Approved | 2026/02/17 |
+| `documentation/decisions/architecture-decisions.md` | Unapproved | — |
+| `documentation/project/architecture.md` | Unapproved | — |
 
 ## Audit Log
 
@@ -32,4 +34,6 @@
 2026/02/17 - overview.md approved - Developer - description validation rule confirmed; no contradictions introduced; re-approved
 2026/02/17 - user-requirements.md approved - Developer - UR-010 expanded to include server-side enforcement; header date updated to 2026-02-17; no contradictions with surrounding requirements; re-approved
 2026/02/17 - phase-1-user-stories.md approved - Developer - US-007 derived-from corrected (UR-010→UR-011); header date updated to 2026-02-17; full review clean; re-approved
+2026/02/18 - architecture-decisions.md added - Developer - Head of Development output document; pending HoD session
+2026/02/18 - architecture.md added - Developer - Head of Development output document; pending HoD session
 ```
