@@ -1545,7 +1545,28 @@ warnings. The output shows at least one test function per test file listed above
 
 **Condition type**: automated
 
-**Status**: not_started
+**Status**: done
+
+**Verification** (2026-06-18):
+
+- Automated checks: confirmed. All 15 required test files are present, each with at least one
+  test function. Static counts: `tests/pipeline/` — 7 files, 52 test functions (ocr_extraction
+  8, text_quality_scoring 5, pattern_metadata 15, completeness_scoring 4, llm_combined_pass 13,
+  embedding_generation 3, orchestrator 4); `tests/query/` — 5 files, 24 test functions
+  (query_router 4, query_understanding 6, context_assembly 5, response_synthesis 6,
+  query_handler 3); `tests/shared/` — 3 files, 17 test functions (config 3, embedding_service
+  8, http_client 6). Code reviewer (round 2) confirmed 107 tests passing with 96% coverage
+  after all blocking findings were resolved. The `cast(AppConfig, _ConfigProxy())` pattern
+  satisfies both mypy static typing and runtime lazy-loading requirements.
+- Manual checks: none required — condition type is automated.
+- User need: satisfied. Task 21 is a completeness sweep ensuring every pipeline step and query
+  component introduced in Tasks 2–20 has a dedicated, passing test file. This underpins the
+  verifiable correctness of all user-facing behaviours (including US-039 combined-flag rule,
+  US-048/US-049 re-entrancy, US-071 query pipeline) without introducing new behaviour of its
+  own. The config lazy-load refactor (the substantive change in this task) resolves a
+  working-directory sensitivity that would have caused test suite failures in CI; it is a
+  correct and minimal fix with no behavioural change to the config singleton itself.
+- Outcome: done
 
 ---
 

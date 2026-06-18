@@ -15,8 +15,13 @@ from shared.config import config
 from tests.fakes.pipeline import FakePipeline
 from tests.fakes.query_handler import FakeQueryHandler
 
-VALID_KEY = config.AUTH.INBOUND_KEY
 INVALID_KEY = "invalid_key"
+
+
+@pytest.fixture
+def valid_key() -> str:
+    return config.AUTH.INBOUND_KEY
+
 
 # ---------------------------------------------------------------------------
 # Dependency override wrappers
@@ -49,8 +54,8 @@ async def client() -> AsyncGenerator[httpx.AsyncClient]:
 
 
 @pytest.fixture
-def auth_headers() -> dict[str, str]:
-    return {"x-internal-key": VALID_KEY}
+def auth_headers(valid_key: str) -> dict[str, str]:
+    return {"x-internal-key": valid_key}
 
 
 # ---------------------------------------------------------------------------

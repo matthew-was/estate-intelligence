@@ -1,6 +1,7 @@
 """Dynaconf + Pydantic config singleton (ADR-015, ADR-016)."""
 
-from typing import Annotated
+import os
+from typing import Annotated, cast
 
 from dynaconf import Dynaconf
 from pydantic import BaseModel, Field, model_validator
@@ -124,12 +125,38 @@ class AppConfig(BaseModel):
 
 
 def _load_config(settings_files: list[str] | None = None) -> AppConfig:
+    # If no settings files specified, find them relative to the processing service root
+    if settings_files is None:
+        processing_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        settings_files = [
+            os.path.join(processing_root, "settings.json"),
+            os.path.join(processing_root, "settings.override.json"),
+        ]
+
     dynaconf_settings = Dynaconf(
         envvar_prefix="IK",
-        settings_files=settings_files or ["settings.json", "settings.override.json"],
+        settings_files=settings_files,
     )
 
     return AppConfig.model_validate(dynaconf_settings.as_dict())
 
 
-config = _load_config()
+class _ConfigProxy:
+    """Lazy-loading proxy for the config singleton.
+
+    Allows `from shared.config import config` to work like a normal variable
+    while deferring initialization until first access.
+    """
+
+    def __init__(self) -> None:
+        self._singleton: AppConfig | None = None
+
+    def __getattr__(self, name: str) -> object:
+        if self._singleton is None:
+            self._singleton = _load_config()
+        return getattr(self._singleton, name)
+
+
+# Proxy instance cast to AppConfig for static type checking. At runtime, `config`
+# is a _ConfigProxy that lazily initializes the AppConfig singleton on first access.
+config: AppConfig = cast(AppConfig, _ConfigProxy())
