@@ -1471,7 +1471,40 @@ previously passing auth middleware tests from Task 4 still pass.
 
 **Condition type**: automated
 
-**Status**: not_started
+**Status**: done
+
+**Verification** (2026-06-18):
+
+- Automated checks: confirmed — all five acceptance conditions are met by falsifiable tests in
+  `tests/test_app.py`:
+  AC-1 (`test_process_valid_body_and_auth_returns_200`): sends valid body with correct auth,
+  asserts HTTP 200, checks `documentId`, `stepResults`, and `flags` fields are present and
+  correctly typed; falsifiable because removing the route handler returns 404.
+  AC-2 (`test_process_invalid_body_returns_400`): sends a body missing all required fields;
+  the custom `RequestValidationError` exception handler in `app.py` converts FastAPI's 422 to
+  400; asserts HTTP 400; falsifiable because removing the handler returns 422.
+  AC-3 (`test_query_valid_body_and_auth_returns_200_with_correct_fields`): asserts HTTP 200
+  and checks all three QUERY-003 contract fields (`responseText` str, `citations` list,
+  `noResults` bool); falsifiable because removing any key from `QueryResponse` fails the
+  `in data` assertions.
+  AC-4 (`test_query_empty_query_text_returns_400` and
+  `test_query_whitespace_only_query_text_returns_400`): both assert HTTP 400; the guard
+  `body.queryText.strip() == ""` in `app.py` covers the whitespace edge case beyond the
+  literal AC requirement; falsifiable because removing the guard returns 200.
+  AC-5: the four original Task 4 auth middleware tests are present and pass; the one test
+  that asserted HTTP 501 (`test_api_success_with_auth`) is replaced by
+  `test_process_with_valid_auth_reaches_handler` which asserts HTTP 200 — correct substitution
+  because the route is no longer a stub; an explanatory comment in the replacement test
+  documents the substitution explicitly.
+- Manual checks: none required — condition type is automated.
+- User need: satisfied. The `ProcessDocumentRequest` schema accepts `incompleteSteps` and maps
+  it to `ProcessingRequest.incomplete_steps`, enabling re-entrant processing as required by
+  US-048 and US-049. The `QueryResponse` correctly serialises all QUERY-003 contract fields
+  in camelCase (`responseText`, `citations`, `noResults`) as required by US-071. The lifespan
+  context creates all service instances once at startup and tears them down on shutdown;
+  factory functions are used throughout so `app.py` never imports from `pipeline/steps/`
+  directly.
+- Outcome: done
 
 ---
 
