@@ -11,7 +11,7 @@ import httpx
 import structlog
 from pydantic import BaseModel, ValidationError
 
-from shared.config import LLMConfig
+from shared.config import LLMBaseConfig
 from shared.interfaces.llm_service import (
     ChunkResult,
     EntityResult,
@@ -69,7 +69,7 @@ class _SynthesisResponseModel(BaseModel):
 
 
 class OllamaLLMAdapter(LLMService):
-    def __init__(self, config: LLMConfig, log: structlog.BoundLogger) -> None:
+    def __init__(self, config: LLMBaseConfig, log: structlog.BoundLogger) -> None:
         self._model = config.MODEL
         self._log = log.bind(service="ollama_client")
         self._client = httpx.AsyncClient(base_url=config.BASE_URL)
