@@ -15,6 +15,6 @@ def test_config_missing_attribute() -> None:
 
 
 def test_config_env_var_override(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(shared.config.config, "_singleton", None)
     monkeypatch.setenv("IK_AUTH__INBOUND_KEY", "overridden-key")
-    cfg = shared.config._load_config(settings_files=["settings.json"])
-    assert cfg.AUTH.INBOUND_KEY == "overridden-key"
+    assert shared.config.config.AUTH.INBOUND_KEY == "overridden-key"
